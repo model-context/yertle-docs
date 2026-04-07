@@ -1,0 +1,113 @@
+---
+title: Core Concepts
+description: "Understand the Git-like model behind Yertle."
+---
+
+Yertle's API is built on a **Git-like content addressing model**. Once you understand the core primitives, the entire API surface follows naturally.
+
+## The mental model
+
+If you're familiar with Git:
+
+| Git | Yertle |
+|-----|--------|
+| Repository | Node |
+| Commit | Commit |
+| Branch | Branch |
+| Tree object | Commit tree |
+| File | Tag, directory, connection, child node, etc. |
+
+Every node has its own commit history and branches. Every change is an immutable commit. Every state in history can be retrieved exactly.
+
+## Organizations
+
+An **organization** is a tenant container. Every node, member, and invite link belongs to an org. Users join orgs through invite links and are assigned a role:
+
+- **viewer** — read-only access
+- **editor** — read + write access
+- **owner** — full administrative access (manage members, settings, billing)
+
+Every org must have at least one owner. The user who creates an org is automatically assigned owner.
+
+## Nodes
+
+A **node** is the central object in Yertle. It represents anything you want to model: a service, a database, a team, a deployment, an entire system. Nodes can contain other nodes (parent/child relationships) and connect to other nodes (graph edges).
+
+Each node has:
+
+- **Identity** — a stable UUID and a public ID (used in URLs)
+- **Content** — title, description, tags, directories
+- **Children** — nodes contained inside this node
+- **Connections** — directed edges between child nodes
+- **Visual properties** — positions and sizes for canvas rendering
+- **Branches** — independent lines of history
+- **Commits** — immutable snapshots of state
+
+## Branches and commits
+
+Every node has a `main` branch by default, plus any number of feature branches. Branches are pointers to commits — exactly like Git.
+
+When you push state to a node, you create a new commit. Commits are immutable and form a chain. You can:
+
+- View the full history of any node
+- Switch between branches
+- Open pull requests to merge branches
+- Roll back to any previous commit
+
+### Full-state push semantics
+
+Yertle uses **full-state push** rather than mutation operations. When you update a node, you send the *complete* desired state — and the server diffs it against the current state to figure out what changed.
+
+This is unusual but powerful:
+
+- **No race conditions** — your push is the truth
+- **Atomic updates** — multiple changes commit together
+- **Simple client logic** — clients don't need to track individual mutations
+
+```http
+PUT /orgs/{org_id}/nodes/{node_id}/tree/{branch}/push
+Content-Type: application/json
+
+{
+  "message": "Add database service",
+  "state": {
+    "node": { "title": "...", "description": "..." },
+    "tags": { "env": "prod" },
+    "child_nodes": [...],
+    "connections": [...],
+    "visual_properties": [...]
+  }
+}
+```
+
+The server creates a new commit, updates the branch pointer, and returns the new commit ID.
+
+## Tags, directories, connections
+
+These are the entities that live inside a node:
+
+- **Tags** — Key-value metadata (e.g., `env=prod`, `team=backend`). Useful for filtering and search.
+- **Directories** — Folder paths used to organize nodes within an org's tree view (e.g., `/services/api`).
+- **Connections** — Directed edges between two child nodes inside a parent. Each connection has a label, type, and visual styling.
+- **Visual properties** — Position, size, rotation, transparency for rendering child nodes on the canvas.
+
+## Pull requests
+
+When you make changes on a feature branch and want to merge them into `main`, you open a **pull request**. PRs work like GitHub:
+
+- Have a title, description, source branch, target branch
+- Can be open, merged, or closed
+- Support fast-forward, merge-commit, and squash merge methods
+- Optionally require review before merging
+
+## Reading the API reference
+
+Once you understand these primitives, the API reference becomes self-explanatory. Endpoints are grouped by resource:
+
+- `/organizations` — orgs and memberships
+- `/orgs/{org_id}/nodes` — nodes within an org
+- `/orgs/{org_id}/nodes/{node_id}/tree/{branch}/...` — branch-scoped operations on a node
+- `/orgs/{org_id}/nodes/{node_id}/pull-requests` — PRs for a node
+- `/invitations` — joining an org
+
+See the [API Reference](/api-reference/overview) for the full list.

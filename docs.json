@@ -1,0 +1,75 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "palm",
+  "name": "Yertle",
+  "colors": {
+    "primary": "#c07711",
+    "light": "#d68a1f",
+    "dark": "#a5650e"
+  },
+  "favicon": "/favicon.png",
+  "navigation": {
+    "groups": [
+      {
+        "group": "Get Started",
+        "pages": [
+          "introduction",
+          "quickstart",
+          "authentication"
+        ]
+      },
+      {
+        "group": "Concepts",
+        "pages": [
+          "concepts"
+        ]
+      },
+      {
+        "group": "Tools",
+        "pages": [
+          "tools/cli",
+          "tools/mcp"
+        ]
+      },
+      {
+        "group": "API Reference",
+        "pages": [
+          "api-reference/overview"
+        ]
+      }
+    ]
+  },
+  "logo": {
+    "light": "/logo/turtle.png",
+    "dark": "/logo/turtle.png"
+  },
+  "api": {
+    "openapi": "openapi.json"
+  },
+  "appearance": {
+    "default": "dark"
+  },
+  "background": {
+    "color": {
+      "dark": "#110f0d"
+    }
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "GitHub",
+        "href": "https://github.com/model-context/yertle-docs"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Sign in",
+      "href": "https://yertle.com"
+    }
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/model-context"
+    }
+  }
+}

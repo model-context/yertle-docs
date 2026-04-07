@@ -1,0 +1,30 @@
+---
+title: Yertle MCP Server
+description: "Connect AI agents to Yertle via the Model Context Protocol."
+---
+
+The Yertle MCP server exposes Yertle's API as a [Model Context Protocol](https://modelcontextprotocol.io) server, allowing AI agents (like Claude) to read and modify your Yertle workspace as part of their reasoning loop.
+
+**Repo:** [model-context/yertle-mcp](https://github.com/model-context/yertle-mcp)
+
+## What is MCP?
+
+The Model Context Protocol is an open standard that lets AI assistants connect to external tools and data sources through a common interface. Once connected, an agent can list resources, call tools, and read documentation from a server without custom integration code per assistant.
+
+## What you can do with it
+
+With the Yertle MCP server connected to a compatible client, an agent can:
+
+- List your organizations and nodes
+- Read full node state including tags, connections, and child nodes
+- Create new nodes and update existing ones
+- Open pull requests on feature branches
+- Search across your workspace
+
+## Setup
+
+See the [yertle-mcp README](https://github.com/model-context/yertle-mcp) for setup instructions, including how to wire it into Claude Desktop, Cursor, or other MCP-compatible clients.
+
+## Contributing
+
+The MCP server is open source. The API reference on this docs site is the source of truth for endpoint signatures — contributors should use it when adding new MCP tools.

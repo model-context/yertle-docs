@@ -1,0 +1,46 @@
+---
+title: Introduction
+description: "Yertle is a collaborative visual workspace for building and managing software architectures."
+---
+
+## What is Yertle?
+
+Yertle is a collaborative visual workspace for designing, documenting, and exploring software systems. It combines a Git-like content-addressing backend with a real-time visual canvas, giving teams the power to model complex architectures with full version history, branching, and merging.
+
+Think of it as **GitHub for system architecture diagrams** — every change is a commit, every branch is a parallel exploration, and every node is a versioned, queryable object.
+
+## Why an API and docs?
+
+This documentation site is for developers building on top of Yertle. You can:
+
+- **Script your workspace** with the Yertle [CLI](/tools/cli)
+- **Connect AI agents** through the Yertle [MCP server](/tools/mcp)
+- **Build custom integrations** using the [REST API](/api-reference/overview)
+
+Everything you can do in the Yertle web app, you can do programmatically.
+
+## Where to go next
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Get from zero to your first API call in five minutes.
+  </Card>
+  <Card title="Core Concepts" icon="book" href="/concepts">
+    Understand orgs, nodes, branches, commits, and the Git-like model.
+  </Card>
+  <Card title="Authentication" icon="key" href="/authentication">
+    Learn how to authenticate API requests with JWT bearer tokens.
+  </Card>
+  <Card title="API Reference" icon="code" href="/api-reference/overview">
+    Browse every endpoint with request/response schemas and examples.
+  </Card>
+</CardGroup>
+
+## Open source tools
+
+The Yertle CLI and MCP server are open source on GitHub:
+
+- [model-context/yertle-cli](https://github.com/model-context/yertle-cli) — Go CLI distributed via Homebrew
+- [model-context/yertle-mcp](https://github.com/model-context/yertle-mcp) — Model Context Protocol server
+
+Contributions welcome.

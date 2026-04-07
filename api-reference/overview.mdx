@@ -1,0 +1,49 @@
+---
+title: API Reference Overview
+description: "REST endpoints for the Yertle API."
+---
+
+The Yertle API is a REST API that follows standard conventions:
+
+- **Base URL** (production): `https://api.yertle.com`
+- **Base URL** (development): `https://api-dev.yertle.com`
+- **Authentication**: JWT bearer tokens (see [Authentication](/authentication))
+- **Content type**: `application/json`
+
+## How to read this reference
+
+The reference pages in this section are auto-generated from the OpenAPI spec at [`openapi.json`](https://github.com/model-context/yertle-docs/blob/main/openapi.json). For each endpoint you'll see:
+
+- HTTP method and path
+- Path and query parameters
+- Request body schema with examples
+- Response schemas for each status code
+- An interactive playground (if you provide a token)
+
+## Endpoint groups
+
+Endpoints are organized by resource:
+
+| Group | Description |
+|-------|-------------|
+| **Authentication** | Login, signup, token refresh |
+| **Organizations** | List, create, inspect orgs; manage members and invites |
+| **Nodes** | Create, read, update, delete nodes; push state |
+| **Branches** | Create branches, switch between branches, list branch heads |
+| **Pull Requests** | Open, review, merge, close PRs |
+| **Directories** | Manage directory structure within an org |
+| **Search** | Full-text and tag-based search across nodes |
+| **Node History** | View commit history for a node |
+| **Graph** | Cross-node relationship queries |
+| **Notifications** | User notification feed |
+
+## Conventions
+
+- All IDs are UUIDs
+- All timestamps are ISO 8601 in UTC
+- Pagination uses `limit` and `offset` query parameters
+- Errors follow [RFC 7807 Problem Details](https://datatracker.ietf.org/doc/html/rfc7807) format
+
+## Reference implementations
+
+The [Yertle CLI](/tools/cli) and [Yertle MCP server](/tools/mcp) are both open source and demonstrate real-world usage of every major endpoint group. Read their source code as living examples.

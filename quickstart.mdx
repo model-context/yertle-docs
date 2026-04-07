@@ -1,0 +1,73 @@
+---
+title: Quickstart
+description: "Make your first Yertle API call in five minutes."
+---
+
+This guide walks you through authenticating, listing your organizations, and reading a node from the Yertle API.
+
+## 1. Get an account
+
+Sign up at [yertle.com](https://yertle.com) and create or join an organization. Make note of your email and password — you'll use them to authenticate.
+
+## 2. Authenticate
+
+Yertle uses Cognito-issued JWT bearer tokens. The simplest way to get one is via the [Yertle CLI](/tools/cli):
+
+```bash
+brew tap model-context/yertle
+brew install yertle
+yertle auth login
+```
+
+This stores your access token at `~/.yertle/config.json`. You can extract it with:
+
+```bash
+cat ~/.yertle/config.json | jq -r '.auth.access_token'
+```
+
+For details on doing this without the CLI, see the [Authentication guide](/authentication).
+
+## 3. Make your first API call
+
+List the organizations you belong to:
+
+```bash
+curl https://api.yertle.com/organizations \
+  -H "Authorization: Bearer $YERTLE_TOKEN"
+```
+
+You should see a JSON response with your orgs:
+
+```json
+{
+  "organizations": [
+    {
+      "id": "ed411977-...",
+      "name": "Acme Inc.",
+      "role": "owner"
+    }
+  ]
+}
+```
+
+## 4. Read a node
+
+Pick an org ID and a node ID from your workspace, then fetch the complete state:
+
+```bash
+curl https://api.yertle.com/orgs/{org_id}/nodes/{node_id}/tree/main/complete \
+  -H "Authorization: Bearer $YERTLE_TOKEN"
+```
+
+This returns the full node with parents, children, connections, tags, directories, and visual properties.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Core Concepts" icon="book" href="/concepts">
+    Understand the Git-like model behind the API.
+  </Card>
+  <Card title="API Reference" icon="code" href="/api-reference/overview">
+    Browse every endpoint.
+  </Card>
+</CardGroup>

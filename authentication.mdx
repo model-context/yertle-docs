@@ -1,0 +1,63 @@
+---
+title: Authentication
+description: "How to authenticate requests to the Yertle API."
+---
+
+The Yertle API uses **JWT bearer tokens** issued by AWS Cognito. Every request to a protected endpoint must include an `Authorization` header.
+
+## Header format
+
+```
+Authorization: Bearer <access_token>
+```
+
+## Getting a token
+
+### Option 1: Yertle CLI (recommended)
+
+The easiest way is to log in with the [Yertle CLI](/tools/cli):
+
+```bash
+yertle auth login
+```
+
+The CLI writes the token to `~/.yertle/config.json`:
+
+```bash
+export YERTLE_TOKEN=$(cat ~/.yertle/config.json | jq -r '.auth.access_token')
+```
+
+The CLI also handles automatic token refresh — if you use the CLI itself for API calls, you don't need to think about expiration.
+
+### Option 2: Direct Cognito authentication
+
+If you can't use the CLI, you can authenticate directly with Cognito using the AWS SDK or any Cognito-compatible client. The user pool details are exposed by Yertle's frontend at build time and can be found in the public auth flow.
+
+The Yertle CLI source ([model-context/yertle-cli](https://github.com/model-context/yertle-cli)) is a reference implementation you can study.
+
+## Token lifetime
+
+- **Access tokens** expire after one hour
+- **Refresh tokens** are valid for 30 days
+- The CLI automatically refreshes access tokens using the stored refresh token; SDKs and custom clients should do the same
+
+## Errors
+
+| Status | Meaning |
+|--------|---------|
+| **401 Unauthorized** | Token missing, invalid, or expired |
+| **403 Forbidden** | Token valid but you lack permission for this resource |
+
+When you receive a 401, refresh your token (or re-run `yertle auth login`) and retry.
+
+## Permissions and roles
+
+Authentication identifies *who you are*. Authorization is enforced per organization based on your role:
+
+| Role | Read nodes | Edit nodes | Manage members | Manage settings |
+|------|-----------|-----------|----------------|-----------------|
+| **viewer** | ✓ | | | |
+| **editor** | ✓ | ✓ | | |
+| **owner** | ✓ | ✓ | ✓ | ✓ |
+
+See [Concepts](/concepts) for more on roles and the organization model.

@@ -1,0 +1,65 @@
+---
+title: Yertle CLI
+description: "A command-line client for the Yertle API."
+---
+
+The Yertle CLI is an open-source Go command-line client for exploring and scripting Yertle workspaces. It's the easiest way to authenticate and the fastest way to inspect your data from the terminal.
+
+**Repo:** [model-context/yertle-cli](https://github.com/model-context/yertle-cli)
+
+## Installation
+
+```bash
+brew tap model-context/yertle
+brew install yertle
+```
+
+## Common commands
+
+```bash
+# Authenticate
+yertle auth login
+
+# Show current config and authentication state
+yertle config
+yertle auth status
+
+# List organizations
+yertle orgs
+
+# List nodes in the active org
+yertle nodes
+
+# Inspect one node
+yertle nodes <node-id>
+
+# Render the containment hierarchy
+yertle tree
+
+# Render an ASCII canvas of a node and its children
+yertle canvas <node-id>
+```
+
+## Output formats
+
+Most commands support `--format table`, `--format json`, or `--format csv`:
+
+```bash
+yertle orgs --format json
+yertle nodes --format csv
+```
+
+## Configuration
+
+The CLI stores config at `~/.yertle/config.json`. You can override the API URL or org scope with environment variables or flags:
+
+```bash
+export YERTLE_API_URL=https://api.yertle.com
+export YERTLE_ORG=<org-id>
+```
+
+## Contributing
+
+The CLI is open source and welcomes contributions. The API reference on this docs site is the source of truth for endpoint signatures and request/response shapes — use it when adding new commands.
+
+See [contributing.md](https://github.com/model-context/yertle-cli/blob/main/CONTRIBUTING.md) in the CLI repo for details.
