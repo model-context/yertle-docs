@@ -36,6 +36,160 @@
         "pages": [
           "api-reference/overview"
         ]
+      },
+      {
+        "group": "Authentication",
+        "pages": [
+          "api-reference/authentication/sign-in",
+          "api-reference/authentication/sign-up",
+          "api-reference/authentication/refresh-token",
+          "api-reference/authentication/verify-token",
+          "api-reference/authentication/get-current-user-info"
+        ]
+      },
+      {
+        "group": "Organizations",
+        "pages": [
+          "api-reference/organizations/list-organizations",
+          "api-reference/organizations/create-organization",
+          "api-reference/organizations/get-organization",
+          "api-reference/organizations/delete-organization",
+          "api-reference/organizations/update-org-settings",
+          "api-reference/organizations/list-members",
+          "api-reference/organizations/add-member",
+          "api-reference/organizations/remove-member",
+          "api-reference/organizations/get-invitation-details",
+          "api-reference/organizations/accept-invitation",
+          "api-reference/organizations/list-invite-links",
+          "api-reference/organizations/regenerate-invite-link",
+          "api-reference/organizations/list-allowed-emails",
+          "api-reference/organizations/add-allowed-emails",
+          "api-reference/organizations/delete-allowed-email"
+        ]
+      },
+      {
+        "group": "Nodes",
+        "pages": [
+          "api-reference/nodes/list-all-nodes-across-orgs",
+          "api-reference/nodes/list-nodes",
+          "api-reference/nodes/create-node",
+          "api-reference/nodes/get-node",
+          "api-reference/nodes/delete-node",
+          "api-reference/nodes/push-node-state",
+          "api-reference/nodes/get-branch-head-commit",
+          "api-reference/nodes/get-complete-state-by-branch",
+          "api-reference/nodes/get-canvas-state-by-branch"
+        ]
+      },
+      {
+        "group": "Branches",
+        "pages": [
+          "api-reference/branches/list-branches",
+          "api-reference/branches/create-branch",
+          "api-reference/branches/compare-branches",
+          "api-reference/branches/delete-branch"
+        ]
+      },
+      {
+        "group": "Pull Requests",
+        "pages": [
+          "api-reference/pull-requests/list-pull-requests",
+          "api-reference/pull-requests/create-pull-request",
+          "api-reference/pull-requests/get-pull-request",
+          "api-reference/pull-requests/merge-pull-request",
+          "api-reference/pull-requests/close-pull-request"
+        ]
+      },
+      {
+        "group": "Node History",
+        "pages": [
+          "api-reference/node-history/get-commits-by-branch",
+          "api-reference/node-history/get-node-history",
+          "api-reference/node-history/get-commit-details",
+          "api-reference/node-history/get-node-diff",
+          "api-reference/node-history/get-complete-state-at-commit",
+          "api-reference/node-history/get-canvas-state-at-commit"
+        ]
+      },
+      {
+        "group": "Directories",
+        "pages": [
+          "api-reference/directories/get-all-orgs-directory-tree",
+          "api-reference/directories/get-directory-contents-across-orgs",
+          "api-reference/directories/list-all-directories",
+          "api-reference/directories/get-org-directory-contents",
+          "api-reference/directories/get-directory-tree",
+          "api-reference/directories/get-all-orgs-hierarchy",
+          "api-reference/directories/get-org-hierarchy"
+        ]
+      },
+      {
+        "group": "Search",
+        "pages": [
+          "api-reference/search/search-nodes"
+        ]
+      },
+      {
+        "group": "Graph",
+        "pages": [
+          "api-reference/graph/get-all-orgs-graph",
+          "api-reference/graph/get-org-graph"
+        ]
+      },
+      {
+        "group": "Auto Create",
+        "pages": [
+          "api-reference/auto-create/start-auto-create",
+          "api-reference/auto-create/list-auto-create-jobs",
+          "api-reference/auto-create/get-auto-create-job",
+          "api-reference/auto-create/get-auto-create-job-nodes"
+        ]
+      },
+      {
+        "group": "Integrations",
+        "pages": [
+          "api-reference/integrations/list-integrations",
+          "api-reference/integrations/delete-integration"
+        ]
+      },
+      {
+        "group": "AWS Integrations",
+        "pages": [
+          "api-reference/aws-integrations/get-setup-info",
+          "api-reference/aws-integrations/create-aws-integration",
+          "api-reference/aws-integrations/validate-aws-integration",
+          "api-reference/aws-integrations/check-resource",
+          "api-reference/aws-integrations/describe-resource",
+          "api-reference/aws-integrations/get-metrics"
+        ]
+      },
+      {
+        "group": "GitHub App",
+        "pages": [
+          "api-reference/github-app/get-install-state",
+          "api-reference/github-app/save-installation",
+          "api-reference/github-app/get-my-installations"
+        ]
+      },
+      {
+        "group": "Notifications",
+        "pages": [
+          "api-reference/notifications/notify-new-signup"
+        ]
+      },
+      {
+        "group": "Contact",
+        "pages": [
+          "api-reference/contact-messages/create-contact-message"
+        ]
+      },
+      {
+        "group": "Health",
+        "pages": [
+          "api-reference/health/health-check",
+          "api-reference/health/readiness-check",
+          "api-reference/health/liveness-check"
+        ]
       }
     ]
   },
@@ -58,7 +212,7 @@
     "links": [
       {
         "label": "GitHub",
-        "href": "https://github.com/model-context/yertle-docs"
+        "href": "https://github.com/orgs/model-context/repositories"
       }
     ],
     "primary": {
