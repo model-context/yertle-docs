@@ -194,8 +194,9 @@
     ]
   },
   "logo": {
-    "light": "/logo/turtle.png",
-    "dark": "/logo/turtle.png"
+    "light": "/logo/wordmark-light.svg",
+    "dark": "/logo/wordmark-dark.svg",
+    "href": "https://yertle.com"
   },
   "api": {
     "openapi": "openapi.json"
