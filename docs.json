@@ -219,7 +219,8 @@
     "primary": {
       "type": "button",
       "label": "Sign in",
-      "href": "https://yertle.com"
+      "href": "https://yertle.com/auth",
+      "target": "_self"
     }
   },
   "footer": {
