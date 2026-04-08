@@ -1,0 +1,10 @@
+# Code owners for yertle-docs
+#
+# These owners will be requested for review on every pull request.
+# To enforce code-owner approval before merging, enable branch protection
+# on main with "Require review from Code Owners" turned on.
+#
+# Docs: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-security/customizing-your-repository/about-code-owners
+
+# Default owner for everything in the repo
+* @albertcmiller1
