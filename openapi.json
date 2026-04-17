@@ -5,6 +5,12 @@
     "description": "Content-addressing backend with Git-like versioning",
     "version": "1.0.0"
   },
+  "servers": [
+    {
+      "url": "https://api.yertle.com",
+      "description": "Production"
+    }
+  ],
   "paths": {
     "/health": {
       "get": {
