@@ -2865,7 +2865,6 @@
     "/orgs/{org_id}/nodes/{node_id}/branches": {
       "post": {
         "tags": [
-          "branches",
           "branches"
         ],
         "summary": "Create Branch",
@@ -2942,7 +2941,6 @@
       },
       "get": {
         "tags": [
-          "branches",
           "branches"
         ],
         "summary": "List Branches",
@@ -3011,7 +3009,6 @@
     "/orgs/{org_id}/nodes/{node_id}/branches/diff/{source_branch}..{target_branch}": {
       "get": {
         "tags": [
-          "branches",
           "branches"
         ],
         "summary": "Compare Branches",
@@ -3098,7 +3095,6 @@
     "/orgs/{org_id}/nodes/{node_id}/branches/{branch_name}": {
       "delete": {
         "tags": [
-          "branches",
           "branches"
         ],
         "summary": "Delete Branch",
@@ -3186,7 +3182,6 @@
     "/orgs/{org_id}/nodes/{node_id}/pull-requests": {
       "post": {
         "tags": [
-          "pull-requests",
           "pull-requests"
         ],
         "summary": "Create Pull Request",
@@ -3263,7 +3258,6 @@
       },
       "get": {
         "tags": [
-          "pull-requests",
           "pull-requests"
         ],
         "summary": "List Pull Requests",
@@ -3361,7 +3355,6 @@
     "/orgs/{org_id}/nodes/{node_id}/pull-requests/{pr_number}": {
       "get": {
         "tags": [
-          "pull-requests",
           "pull-requests"
         ],
         "summary": "Get Pull Request",
@@ -3423,7 +3416,6 @@
     "/orgs/{org_id}/nodes/{node_id}/pull-requests/{pr_number}/merge": {
       "post": {
         "tags": [
-          "pull-requests",
           "pull-requests"
         ],
         "summary": "Merge Pull Request",
@@ -3501,7 +3493,6 @@
     "/orgs/{org_id}/nodes/{node_id}/pull-requests/{pr_number}/close": {
       "post": {
         "tags": [
-          "pull-requests",
           "pull-requests"
         ],
         "summary": "Close Pull Request",
