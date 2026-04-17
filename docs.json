@@ -73,7 +73,6 @@
           "api-reference/nodes/list-all-nodes-across-orgs",
           "api-reference/nodes/list-nodes",
           "api-reference/nodes/create-node",
-          "api-reference/nodes/get-node",
           "api-reference/nodes/delete-node",
           "api-reference/nodes/push-node-state",
           "api-reference/nodes/get-branch-head-commit",

@@ -5,6 +5,12 @@
     "description": "Content-addressing backend with Git-like versioning",
     "version": "1.0.0"
   },
+  "servers": [
+    {
+      "url": "https://api.yertle.com",
+      "description": "Production"
+    }
+  ],
   "paths": {
     "/health": {
       "get": {
@@ -19,7 +25,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/HealthCheckResponse"
+                }
               }
             }
           }
@@ -39,7 +47,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/ReadinessCheckResponse"
+                }
               }
             }
           }
@@ -59,7 +69,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/LivenessCheckResponse"
+                }
               }
             }
           }
@@ -173,7 +185,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/RefreshTokenResponse"
+                }
               }
             }
           },
@@ -245,7 +259,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/CurrentUserPlaceholderResponse"
+                }
               }
             }
           }
@@ -457,7 +473,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/DeletionResultResponse"
+                }
               }
             }
           },
@@ -549,7 +567,7 @@
           "organizations"
         ],
         "summary": "Add Member",
-        "description": "Add a member to organization.",
+        "description": "Add an existing user to the organization with a specific role.\n\nThe invoker must be an **owner** of the organization. The target\n`user_id` must already exist in Yertle \u2014 this endpoint does not\ncreate users (use the `/invitations/accept` flow for that). To add\nsomeone by email instead, issue an invite link.\n\nRole must be one of `owner`, `editor`, or `viewer`.",
         "operationId": "add_member_orgs__org_id__members_post",
         "parameters": [
           {
@@ -593,7 +611,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
               }
             }
           },
@@ -1187,7 +1207,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/DirectoryTreeResponse"
+                }
               }
             }
           },
@@ -1259,7 +1281,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/DirectoryContentsResponse"
+                }
               }
             }
           },
@@ -1409,7 +1433,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/DirectoryContentsResponse"
+                }
               }
             }
           },
@@ -1467,7 +1493,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/DirectoryTreeResponse"
+                }
               }
             }
           },
@@ -1862,7 +1890,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/DeletionResultResponse"
+                }
               }
             }
           },
@@ -2026,7 +2056,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/BranchHeadCommitResponse"
+                }
               }
             }
           },
@@ -2102,7 +2134,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/NodeCompleteStateResponse"
+                }
               }
             }
           },
@@ -2189,7 +2223,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/NodeCanvasStateResponse"
+                }
               }
             }
           },
@@ -2709,7 +2745,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/NodeCompleteStateResponse"
+                }
               }
             }
           },
@@ -2805,7 +2843,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/NodeCanvasStateResponse"
+                }
               }
             }
           },
@@ -2825,11 +2865,10 @@
     "/orgs/{org_id}/nodes/{node_id}/branches": {
       "post": {
         "tags": [
-          "branches",
           "branches"
         ],
         "summary": "Create Branch",
-        "description": "Create a new branch from an existing branch.",
+        "description": "Create a new branch for a node, forked from an existing branch.\n\nThe new branch starts at the head commit of `base_branch` (defaults to\n`main` if not provided) so subsequent pushes build on that history.\n\nRequires **editor** or **owner** role on the organization \u2014 viewers cannot\ncreate branches.",
         "operationId": "create_branch_orgs__org_id__nodes__node_id__branches_post",
         "parameters": [
           {
@@ -2902,11 +2941,10 @@
       },
       "get": {
         "tags": [
-          "branches",
           "branches"
         ],
         "summary": "List Branches",
-        "description": "List all branches for a node.",
+        "description": "List all branches for a node.\n\nReturns each branch with its head commit, base branch, latest commit\nmessage, and last-activity timestamp \u2014 enough to power a branch picker\nor a \"recent branches\" view without follow-up requests.",
         "operationId": "list_branches_orgs__org_id__nodes__node_id__branches_get",
         "parameters": [
           {
@@ -2971,11 +3009,10 @@
     "/orgs/{org_id}/nodes/{node_id}/branches/diff/{source_branch}..{target_branch}": {
       "get": {
         "tags": [
-          "branches",
           "branches"
         ],
         "summary": "Compare Branches",
-        "description": "Compare two branches for pull request creation.",
+        "description": "Compare two branches to preview a potential pull request.\n\nReports whether the source branch can be fast-forward merged into the\ntarget, how many commits the source is ahead/behind, and whether any\nconflicts would arise. Typically called by the UI before opening a PR\nso the author can see what the merge would do.\n\nBranches are identified in the URL as `{source_branch}..{target_branch}`,\nmatching `git diff` syntax.",
         "operationId": "compare_branches_orgs__org_id__nodes__node_id__branches_diff__source_branch____target_branch__get",
         "parameters": [
           {
@@ -3058,11 +3095,10 @@
     "/orgs/{org_id}/nodes/{node_id}/branches/{branch_name}": {
       "delete": {
         "tags": [
-          "branches",
           "branches"
         ],
         "summary": "Delete Branch",
-        "description": "Delete a branch from a node.",
+        "description": "Delete a branch from a node.\n\nSafe by default: the branch must be merged into `main` (or have an open\nPR that was merged) before deletion is allowed. Pass `force=true` to\ndelete an unmerged branch, which discards any commits unique to it.\n\nThe `main` branch cannot be deleted.\n\nRequires **editor** or **owner** role on the organization \u2014 viewers\ncannot delete branches.",
         "operationId": "delete_branch_orgs__org_id__nodes__node_id__branches__branch_name__delete",
         "parameters": [
           {
@@ -3124,7 +3160,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
               }
             }
           },
@@ -3144,11 +3182,10 @@
     "/orgs/{org_id}/nodes/{node_id}/pull-requests": {
       "post": {
         "tags": [
-          "pull-requests",
           "pull-requests"
         ],
         "summary": "Create Pull Request",
-        "description": "Create new pull request (fast-forward only).",
+        "description": "Create a new pull request from one branch into another.\n\nYertle's merge model is **fast-forward only** \u2014 the source branch must\nbe a strict descendant of the target for the PR to be mergeable. You\ncan still open a PR that can't currently fast-forward; the UI will\nsurface the conflict and the author can rebase before merging.\n\nSet `is_draft=true` for a work-in-progress PR that cannot be merged\nuntil promoted to ready. The PR number is auto-assigned per node and\nreturned in the response.",
         "operationId": "create_pull_request_orgs__org_id__nodes__node_id__pull_requests_post",
         "parameters": [
           {
@@ -3197,7 +3234,7 @@
           }
         },
         "responses": {
-          "200": {
+          "201": {
             "description": "Successful Response",
             "content": {
               "application/json": {
@@ -3221,11 +3258,10 @@
       },
       "get": {
         "tags": [
-          "pull-requests",
           "pull-requests"
         ],
         "summary": "List Pull Requests",
-        "description": "List pull requests for node.",
+        "description": "List pull requests for a node.\n\nResults are ordered newest-first and can be filtered by state via\n`status=open|merged|closed`. Supports `limit`/`offset` pagination\n(limit is capped at 100).",
         "operationId": "list_pull_requests_orgs__org_id__nodes__node_id__pull_requests_get",
         "parameters": [
           {
@@ -3319,11 +3355,10 @@
     "/orgs/{org_id}/nodes/{node_id}/pull-requests/{pr_number}": {
       "get": {
         "tags": [
-          "pull-requests",
           "pull-requests"
         ],
         "summary": "Get Pull Request",
-        "description": "Get specific pull request with merge status.",
+        "description": "Fetch a single pull request along with its current merge status.\n\nAugments the stored PR with live computed fields: whether it can be\nmerged right now (fast-forward check), a reason string if it cannot,\nand how many commits the source branch is ahead of the target. Those\nfields are re-derived on each call so the UI always reflects current\nbranch state.\n\n`pr_number` is the per-node PR number (not the internal UUID).",
         "operationId": "get_pull_request_orgs__org_id__nodes__node_id__pull_requests__pr_number__get",
         "parameters": [
           {
@@ -3381,11 +3416,10 @@
     "/orgs/{org_id}/nodes/{node_id}/pull-requests/{pr_number}/merge": {
       "post": {
         "tags": [
-          "pull-requests",
           "pull-requests"
         ],
         "summary": "Merge Pull Request",
-        "description": "Merge pull request (fast-forward only).",
+        "description": "Merge a pull request into its target branch.\n\nYertle only supports **fast-forward merges**: the target branch is\nadvanced to the source branch's head commit \u2014 no merge commit is\ncreated, history stays linear. If a fast-forward is not possible\n(target has diverged), the call fails with 400 and the author must\nrebase the source branch before retrying.\n\nOn success, the PR is marked merged and the returned `merge_commit`\nis the same commit as the source branch's head at merge time.",
         "operationId": "merge_pull_request_orgs__org_id__nodes__node_id__pull_requests__pr_number__merge_post",
         "parameters": [
           {
@@ -3459,11 +3493,10 @@
     "/orgs/{org_id}/nodes/{node_id}/pull-requests/{pr_number}/close": {
       "post": {
         "tags": [
-          "pull-requests",
           "pull-requests"
         ],
         "summary": "Close Pull Request",
-        "description": "Close pull request without merging.",
+        "description": "Close a pull request without merging it.\n\nMarks the PR as closed and is reversible only by opening a new PR \u2014\na closed PR cannot be reopened. The source branch is left intact\n(delete it separately via `DELETE \u2026/branches/{name}` if desired).",
         "operationId": "close_pull_request_orgs__org_id__nodes__node_id__pull_requests__pr_number__close_post",
         "parameters": [
           {
@@ -3937,7 +3970,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/AutoCreateJobNodesResponse"
+                }
               }
             }
           },
@@ -3994,7 +4029,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/GitHubInstallStateResponse"
+                }
               }
             }
           },
@@ -4017,7 +4054,7 @@
           "github-app"
         ],
         "summary": "Save Installation",
-        "description": "Save a GitHub App installation for an organization.",
+        "description": "Link a GitHub App installation to an organization.\n\nCalled by the frontend after the user completes the GitHub App install\nflow. The `installation_id` is the numeric ID GitHub returns in the\nsetup redirect; `state` is the signed token originally issued by\n`GET /github/install-state` and echoed back by GitHub.\n\nSecurity: if this installation is already linked to any organization\nin Yertle, only the original installer can re-link it. For a fresh\ninstall, the `state` token must verify against the current user and\ntarget org \u2014 otherwise the request is rejected with 403.",
         "operationId": "save_installation_orgs__org_id__github_installations_post",
         "parameters": [
           {
@@ -4062,7 +4099,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/OrgIntegrationResponse"
+                }
               }
             }
           },
@@ -4110,7 +4149,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/GitHubInstallationsListResponse"
+                }
               }
             }
           },
@@ -4184,7 +4225,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/OrgIntegrationListResponse"
+                }
               }
             }
           },
@@ -4305,7 +4348,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/AwsSetupInfoResponse"
+                }
               }
             }
           },
@@ -4373,7 +4418,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/OrgIntegrationResponse"
+                }
               }
             }
           },
@@ -4396,7 +4443,7 @@
           "aws-integrations"
         ],
         "summary": "Validate Aws Integration",
-        "description": "Re-validate an AWS integration by attempting STS AssumeRole.",
+        "description": "Re-validate an AWS integration by attempting STS AssumeRole.\n\nUseful when an integration is stuck in `error` state (e.g. the customer\nupdated their trust policy after the initial `POST` failed) \u2014 calling\nthis endpoint re-attempts the AssumeRole and flips the integration back\nto `active` on success. On failure, the latest STS error message is\nstored on the integration's `last_error` field and returned in the\nresponse body.",
         "operationId": "validate_aws_integration_orgs__org_id__integrations_aws__integration_id__validate_post",
         "parameters": [
           {
@@ -4441,7 +4488,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/OrgIntegrationResponse"
+                }
               }
             }
           },
@@ -4519,7 +4568,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceCheckResult"
+                }
               }
             }
           },
@@ -4597,7 +4648,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceDescription"
+                }
               }
             }
           },
@@ -4675,7 +4728,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/MetricsResponse"
+                }
               }
             }
           },
@@ -4723,7 +4778,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/NotifyNewSignupResponse"
+                }
               }
             }
           },
@@ -4979,6 +5036,75 @@
         "title": "AutoCreateJobListResponse",
         "description": "Response for listing auto-create jobs."
       },
+      "AutoCreateJobNodeLinkResponse": {
+        "properties": {
+          "node_id": {
+            "type": "string",
+            "title": "Node Id",
+            "description": "Node ID"
+          },
+          "role": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Role",
+            "description": "Role this node played in the job (e.g. 'created', 'updated')"
+          },
+          "source_file_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source File Path",
+            "description": "Path of the IaC source file this node was derived from"
+          },
+          "source_file_sha": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source File Sha",
+            "description": "SHA of the IaC source file at the time of creation"
+          }
+        },
+        "type": "object",
+        "required": [
+          "node_id"
+        ],
+        "title": "AutoCreateJobNodeLinkResponse",
+        "description": "A node produced (or updated) by an auto-create job."
+      },
+      "AutoCreateJobNodesResponse": {
+        "properties": {
+          "nodes": {
+            "items": {
+              "$ref": "#/components/schemas/AutoCreateJobNodeLinkResponse"
+            },
+            "type": "array",
+            "title": "Nodes",
+            "description": "Nodes linked to the job"
+          }
+        },
+        "type": "object",
+        "required": [
+          "nodes"
+        ],
+        "title": "AutoCreateJobNodesResponse",
+        "description": "Response for GET /orgs/{org_id}/auto-create/jobs/{job_id}/nodes."
+      },
       "AutoCreateJobResponse": {
         "properties": {
           "id": {
@@ -5115,6 +5241,39 @@
         "title": "AutoCreateJobResponse",
         "description": "Response for auto-create job status."
       },
+      "AwsSetupInfoResponse": {
+        "properties": {
+          "flow_account_id": {
+            "type": "string",
+            "title": "Flow Account Id",
+            "description": "Flow's AWS Account ID \u2014 used by customers as the trusted principal"
+          },
+          "external_id": {
+            "type": "string",
+            "title": "External Id",
+            "description": "Fresh external ID for the AssumeRole trust policy"
+          },
+          "trust_policy_json": {
+            "type": "string",
+            "title": "Trust Policy Json",
+            "description": "Rendered IAM trust policy JSON that the customer should attach to their role"
+          },
+          "recommended_policy_arn": {
+            "type": "string",
+            "title": "Recommended Policy Arn",
+            "description": "AWS-managed policy ARN we recommend attaching (typically ReadOnlyAccess)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "flow_account_id",
+          "external_id",
+          "trust_policy_json",
+          "recommended_policy_arn"
+        ],
+        "title": "AwsSetupInfoResponse",
+        "description": "Response for GET /orgs/{org_id}/integrations/aws/setup-info."
+      },
       "BranchComparisonResponse": {
         "properties": {
           "source_branch": {
@@ -5189,6 +5348,33 @@
         ],
         "title": "BranchComparisonResponse",
         "description": "Response model for branch comparison."
+      },
+      "BranchHeadCommitResponse": {
+        "properties": {
+          "node_id": {
+            "type": "string",
+            "title": "Node Id",
+            "description": "Node ID"
+          },
+          "branch": {
+            "type": "string",
+            "title": "Branch",
+            "description": "Branch name"
+          },
+          "commit": {
+            "type": "string",
+            "title": "Commit",
+            "description": "HEAD commit ID, or 'none' if the branch has no commits yet"
+          }
+        },
+        "type": "object",
+        "required": [
+          "node_id",
+          "branch",
+          "commit"
+        ],
+        "title": "BranchHeadCommitResponse",
+        "description": "Response for GET /orgs/{org_id}/nodes/{node_id}/tree/{branch}/head."
       },
       "BranchListResponse": {
         "properties": {
@@ -5889,6 +6075,70 @@
         "title": "CreatePRResponse",
         "description": "Response for creating a pull request."
       },
+      "CurrentUserPlaceholderResponse": {
+        "properties": {
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "Human-readable guidance"
+          },
+          "hint": {
+            "type": "string",
+            "title": "Hint",
+            "description": "Hint on how to authenticate"
+          }
+        },
+        "type": "object",
+        "required": [
+          "message",
+          "hint"
+        ],
+        "title": "CurrentUserPlaceholderResponse",
+        "description": "Placeholder response for GET /auth/me.\n\nThe production endpoint requires a valid bearer token. This shape is what\ncallers see when hitting the endpoint without authentication."
+      },
+      "DatabaseStatusResponse": {
+        "properties": {
+          "connected": {
+            "type": "boolean",
+            "title": "Connected",
+            "description": "True if the database is reachable"
+          }
+        },
+        "type": "object",
+        "required": [
+          "connected"
+        ],
+        "title": "DatabaseStatusResponse",
+        "description": "Connectivity status for a backing database."
+      },
+      "DeletionResultResponse": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "True if the deletion succeeded"
+          },
+          "deleted": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Deleted",
+            "description": "Counts of entities removed, keyed by entity type"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "Human-readable summary of the deletion"
+          }
+        },
+        "type": "object",
+        "required": [
+          "success",
+          "deleted",
+          "message"
+        ],
+        "title": "DeletionResultResponse",
+        "description": "Response returned by delete operations that report what was cleaned up."
+      },
       "DiffEntityResponse": {
         "properties": {
           "entity_type": {
@@ -5958,6 +6208,13 @@
         "title": "DiffEntityResponse",
         "description": "Response model for entity diff data."
       },
+      "DirectoryContentsResponse": {
+        "properties": {},
+        "additionalProperties": true,
+        "type": "object",
+        "title": "DirectoryContentsResponse",
+        "description": "Response for directory-contents endpoints.\n\nShape is dynamic \u2014 callers receive the contents dict produced by the\nsearch service. Additional fields are allowed."
+      },
       "DirectoryListResponse": {
         "properties": {
           "directories": {
@@ -6002,6 +6259,78 @@
         ],
         "title": "DirectoryResponse",
         "description": "Response model for directory data."
+      },
+      "DirectoryTreeResponse": {
+        "properties": {
+          "directories": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Directories",
+            "description": "Flat directory entries across orgs"
+          },
+          "tree": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tree",
+            "description": "Hierarchical directory tree for a single org"
+          }
+        },
+        "type": "object",
+        "title": "DirectoryTreeResponse",
+        "description": "Response for directory tree endpoints.\n\n`directories` is used by the all-orgs tree variant; `tree` is used by the\nper-org tree variant. Exactly one is populated per endpoint."
+      },
+      "GitHubInstallStateResponse": {
+        "properties": {
+          "state": {
+            "type": "string",
+            "title": "State",
+            "description": "Signed state token to pass to GitHub's install URL"
+          }
+        },
+        "type": "object",
+        "required": [
+          "state"
+        ],
+        "title": "GitHubInstallStateResponse",
+        "description": "Response for GET /github/install-state."
+      },
+      "GitHubInstallationsListResponse": {
+        "properties": {
+          "installations": {
+            "items": {
+              "$ref": "#/components/schemas/OrgIntegrationResponse"
+            },
+            "type": "array",
+            "title": "Installations",
+            "description": "GitHub App installations"
+          }
+        },
+        "type": "object",
+        "required": [
+          "installations"
+        ],
+        "title": "GitHubInstallationsListResponse",
+        "description": "Wrapper for list-of-GitHub-installations responses."
       },
       "GraphEdge": {
         "properties": {
@@ -6135,6 +6464,33 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
+      },
+      "HealthCheckResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "Service status (e.g. 'healthy')"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "Human-readable status message"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version",
+            "description": "API version"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "message",
+          "version"
+        ],
+        "title": "HealthCheckResponse",
+        "description": "Basic liveness/version signal for the API."
       },
       "HierarchyEntryResponse": {
         "properties": {
@@ -6374,6 +6730,27 @@
         "title": "ListPRResponse",
         "description": "Response for listing pull requests."
       },
+      "LivenessCheckResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "'alive' when the process is up"
+          },
+          "timestamp": {
+            "type": "string",
+            "title": "Timestamp",
+            "description": "Server timestamp (ISO 8601)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "timestamp"
+        ],
+        "title": "LivenessCheckResponse",
+        "description": "Liveness probe for container orchestration."
+      },
       "MemberListResponse": {
         "properties": {
           "members": {
@@ -6463,6 +6840,211 @@
         ],
         "title": "MergePRResponse",
         "description": "Response for merging a pull request."
+      },
+      "MessageResponse": {
+        "properties": {
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "Human-readable status message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "message"
+        ],
+        "title": "MessageResponse",
+        "description": "Minimal response carrying a human-readable message."
+      },
+      "MetricDatapoint": {
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "title": "Timestamp"
+          },
+          "value": {
+            "type": "number",
+            "title": "Value"
+          }
+        },
+        "type": "object",
+        "required": [
+          "timestamp",
+          "value"
+        ],
+        "title": "MetricDatapoint"
+      },
+      "MetricResult": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "datapoints": {
+            "items": {
+              "$ref": "#/components/schemas/MetricDatapoint"
+            },
+            "type": "array",
+            "title": "Datapoints",
+            "default": []
+          },
+          "total": {
+            "type": "number",
+            "title": "Total",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "title": "MetricResult"
+      },
+      "MetricsResponse": {
+        "properties": {
+          "arn": {
+            "type": "string",
+            "title": "Arn"
+          },
+          "service": {
+            "type": "string",
+            "title": "Service",
+            "default": ""
+          },
+          "region": {
+            "type": "string",
+            "title": "Region",
+            "default": ""
+          },
+          "metrics": {
+            "items": {
+              "$ref": "#/components/schemas/MetricResult"
+            },
+            "type": "array",
+            "title": "Metrics",
+            "default": []
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          }
+        },
+        "type": "object",
+        "required": [
+          "arn"
+        ],
+        "title": "MetricsResponse"
+      },
+      "NodeCanvasStateResponse": {
+        "properties": {},
+        "additionalProperties": true,
+        "type": "object",
+        "title": "NodeCanvasStateResponse",
+        "description": "Flat canvas state \u2014 dictionary keyed by node ID.\n\nEach value is a push-compatible state object for that node. The schema is\ninherently dynamic because keys are UUIDs, so this response type is a\npassthrough JSON object."
+      },
+      "NodeCompleteStateResponse": {
+        "properties": {
+          "node": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Node",
+            "description": "Node metadata (id, title, description, org_id, timestamps)"
+          },
+          "tags": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Tags",
+            "description": "Node tags"
+          },
+          "directories": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Directories",
+            "description": "Directory paths the node belongs to"
+          },
+          "documentation": {
+            "items": {},
+            "type": "array",
+            "title": "Documentation",
+            "description": "Attached documentation entries"
+          },
+          "child_nodes": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Child Nodes",
+            "description": "Child node summaries"
+          },
+          "visual_properties": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Visual Properties",
+            "description": "Visual properties for child nodes"
+          },
+          "connections": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Connections",
+            "description": "Connections between child nodes"
+          },
+          "parent_nodes": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Parent Nodes",
+            "description": "Parent nodes that contain this node"
+          },
+          "ingress_connections": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Ingress Connections",
+            "description": "Incoming connections from sibling contexts"
+          },
+          "egress_connections": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Egress Connections",
+            "description": "Outgoing connections to sibling contexts"
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Metadata",
+            "description": "Aggregate counts (child/connection totals)"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "node"
+        ],
+        "title": "NodeCompleteStateResponse",
+        "description": "Full state for a node (rendered canvas view).\n\nThe response contains the node's metadata plus all visual + relational data\nneeded by the frontend to render the canvas: child nodes, visual properties,\nconnections, parents, and branch context. Nested shapes are intentionally\nloose because the visual schema is evolving."
       },
       "NodeListResponse": {
         "properties": {
@@ -6855,6 +7437,25 @@
         "title": "NodeSearchFilters",
         "description": "Request model for unified node search with optional filters."
       },
+      "NotifyNewSignupResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "published",
+              "skipped"
+            ],
+            "title": "Status",
+            "description": "'published' if a notification was sent, 'skipped' if deduplicated"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "title": "NotifyNewSignupResponse",
+        "description": "Response for POST /notifications/new-signup."
+      },
       "OrgGraphResponse": {
         "properties": {
           "nodes": {
@@ -6893,6 +7494,120 @@
         ],
         "title": "OrgGraphResponse",
         "description": "Complete org graph for visualization."
+      },
+      "OrgIntegrationListResponse": {
+        "properties": {
+          "integrations": {
+            "items": {
+              "$ref": "#/components/schemas/OrgIntegrationResponse"
+            },
+            "type": "array",
+            "title": "Integrations",
+            "description": "List of integrations"
+          }
+        },
+        "type": "object",
+        "required": [
+          "integrations"
+        ],
+        "title": "OrgIntegrationListResponse",
+        "description": "Wrapper for list-of-integrations responses."
+      },
+      "OrgIntegrationResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Integration record ID"
+          },
+          "org_id": {
+            "type": "string",
+            "title": "Org Id",
+            "description": "Organization ID"
+          },
+          "provider_type": {
+            "type": "string",
+            "title": "Provider Type",
+            "description": "Provider type (e.g. 'github', 'aws')"
+          },
+          "provider_account_id": {
+            "type": "string",
+            "title": "Provider Account Id",
+            "description": "Provider-specific account identifier"
+          },
+          "display_name": {
+            "type": "string",
+            "title": "Display Name",
+            "description": "Human-readable name for the integration"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "Integration status (active, pending, error)"
+          },
+          "config": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Config",
+            "description": "Provider-specific configuration"
+          },
+          "last_validated_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Validated At",
+            "description": "Last successful validation timestamp"
+          },
+          "last_error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Error",
+            "description": "Last error message, if any"
+          },
+          "created_by": {
+            "type": "string",
+            "title": "Created By",
+            "description": "User who created the integration"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At",
+            "description": "Creation timestamp"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At",
+            "description": "Last update timestamp"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "org_id",
+          "provider_type",
+          "provider_account_id",
+          "display_name",
+          "status",
+          "created_by",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "OrgIntegrationResponse",
+        "description": "API response shape for an organization integration (mirrors the core domain model)."
       },
       "OrganizationListResponse": {
         "properties": {
@@ -7373,6 +8088,35 @@
         "title": "PushStateResponse",
         "description": "Response model for Git-like full-state push operations."
       },
+      "ReadinessCheckResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "'ready' or 'not ready'"
+          },
+          "database": {
+            "$ref": "#/components/schemas/DatabaseStatusResponse",
+            "description": "Database connectivity"
+          },
+          "services": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Services",
+            "description": "Status of downstream services, keyed by name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "database",
+          "services"
+        ],
+        "title": "ReadinessCheckResponse",
+        "description": "Readiness probe \u2014 reports database connectivity and downstream services."
+      },
       "RefreshTokenRequest": {
         "properties": {
           "refreshToken": {
@@ -7387,6 +8131,140 @@
         ],
         "title": "RefreshTokenRequest",
         "description": "Request model for token refresh."
+      },
+      "RefreshTokenResponse": {
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "title": "Accesstoken",
+            "description": "New access token"
+          },
+          "tokenType": {
+            "type": "string",
+            "title": "Tokentype",
+            "description": "Token type (e.g. 'Bearer')"
+          },
+          "expiresIn": {
+            "type": "integer",
+            "title": "Expiresin",
+            "description": "Access token lifetime in seconds"
+          }
+        },
+        "type": "object",
+        "required": [
+          "accessToken",
+          "tokenType",
+          "expiresIn"
+        ],
+        "title": "RefreshTokenResponse",
+        "description": "Response for POST /auth/refresh."
+      },
+      "ResourceCheckResult": {
+        "properties": {
+          "arn": {
+            "type": "string",
+            "title": "Arn"
+          },
+          "exists": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exists"
+          },
+          "service": {
+            "type": "string",
+            "title": "Service",
+            "default": ""
+          },
+          "region": {
+            "type": "string",
+            "title": "Region",
+            "default": ""
+          },
+          "resource_id": {
+            "type": "string",
+            "title": "Resource Id",
+            "default": ""
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          }
+        },
+        "type": "object",
+        "required": [
+          "arn"
+        ],
+        "title": "ResourceCheckResult",
+        "description": "Result of checking whether an AWS resource exists."
+      },
+      "ResourceDescription": {
+        "properties": {
+          "arn": {
+            "type": "string",
+            "title": "Arn"
+          },
+          "exists": {
+            "type": "boolean",
+            "title": "Exists",
+            "default": false
+          },
+          "service": {
+            "type": "string",
+            "title": "Service",
+            "default": ""
+          },
+          "region": {
+            "type": "string",
+            "title": "Region",
+            "default": ""
+          },
+          "resource_id": {
+            "type": "string",
+            "title": "Resource Id",
+            "default": ""
+          },
+          "resource_name": {
+            "type": "string",
+            "title": "Resource Name",
+            "default": ""
+          },
+          "tags": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Tags",
+            "default": {}
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          }
+        },
+        "type": "object",
+        "required": [
+          "arn"
+        ],
+        "title": "ResourceDescription",
+        "description": "Detailed description of an AWS resource including tags."
       },
       "SaveInstallationRequest": {
         "properties": {
