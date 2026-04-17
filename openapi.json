@@ -567,7 +567,7 @@
           "organizations"
         ],
         "summary": "Add Member",
-        "description": "Add a member to organization.",
+        "description": "Add an existing user to the organization with a specific role.\n\nThe invoker must be an **owner** of the organization. The target\n`user_id` must already exist in Yertle \u2014 this endpoint does not\ncreate users (use the `/invitations/accept` flow for that). To add\nsomeone by email instead, issue an invite link.\n\nRole must be one of `owner`, `editor`, or `viewer`.",
         "operationId": "add_member_orgs__org_id__members_post",
         "parameters": [
           {
@@ -2869,7 +2869,7 @@
           "branches"
         ],
         "summary": "Create Branch",
-        "description": "Create a new branch from an existing branch.",
+        "description": "Create a new branch for a node, forked from an existing branch.\n\nThe new branch starts at the head commit of `base_branch` (defaults to\n`main` if not provided) so subsequent pushes build on that history.\n\nRequires **editor** or **owner** role on the organization \u2014 viewers cannot\ncreate branches.",
         "operationId": "create_branch_orgs__org_id__nodes__node_id__branches_post",
         "parameters": [
           {
@@ -2946,7 +2946,7 @@
           "branches"
         ],
         "summary": "List Branches",
-        "description": "List all branches for a node.",
+        "description": "List all branches for a node.\n\nReturns each branch with its head commit, base branch, latest commit\nmessage, and last-activity timestamp \u2014 enough to power a branch picker\nor a \"recent branches\" view without follow-up requests.",
         "operationId": "list_branches_orgs__org_id__nodes__node_id__branches_get",
         "parameters": [
           {
@@ -3015,7 +3015,7 @@
           "branches"
         ],
         "summary": "Compare Branches",
-        "description": "Compare two branches for pull request creation.",
+        "description": "Compare two branches to preview a potential pull request.\n\nReports whether the source branch can be fast-forward merged into the\ntarget, how many commits the source is ahead/behind, and whether any\nconflicts would arise. Typically called by the UI before opening a PR\nso the author can see what the merge would do.\n\nBranches are identified in the URL as `{source_branch}..{target_branch}`,\nmatching `git diff` syntax.",
         "operationId": "compare_branches_orgs__org_id__nodes__node_id__branches_diff__source_branch____target_branch__get",
         "parameters": [
           {
@@ -3102,7 +3102,7 @@
           "branches"
         ],
         "summary": "Delete Branch",
-        "description": "Delete a branch from a node.",
+        "description": "Delete a branch from a node.\n\nSafe by default: the branch must be merged into `main` (or have an open\nPR that was merged) before deletion is allowed. Pass `force=true` to\ndelete an unmerged branch, which discards any commits unique to it.\n\nThe `main` branch cannot be deleted.\n\nRequires **editor** or **owner** role on the organization \u2014 viewers\ncannot delete branches.",
         "operationId": "delete_branch_orgs__org_id__nodes__node_id__branches__branch_name__delete",
         "parameters": [
           {
@@ -3190,7 +3190,7 @@
           "pull-requests"
         ],
         "summary": "Create Pull Request",
-        "description": "Create new pull request (fast-forward only).",
+        "description": "Create a new pull request from one branch into another.\n\nYertle's merge model is **fast-forward only** \u2014 the source branch must\nbe a strict descendant of the target for the PR to be mergeable. You\ncan still open a PR that can't currently fast-forward; the UI will\nsurface the conflict and the author can rebase before merging.\n\nSet `is_draft=true` for a work-in-progress PR that cannot be merged\nuntil promoted to ready. The PR number is auto-assigned per node and\nreturned in the response.",
         "operationId": "create_pull_request_orgs__org_id__nodes__node_id__pull_requests_post",
         "parameters": [
           {
@@ -3267,7 +3267,7 @@
           "pull-requests"
         ],
         "summary": "List Pull Requests",
-        "description": "List pull requests for node.",
+        "description": "List pull requests for a node.\n\nResults are ordered newest-first and can be filtered by state via\n`status=open|merged|closed`. Supports `limit`/`offset` pagination\n(limit is capped at 100).",
         "operationId": "list_pull_requests_orgs__org_id__nodes__node_id__pull_requests_get",
         "parameters": [
           {
@@ -3365,7 +3365,7 @@
           "pull-requests"
         ],
         "summary": "Get Pull Request",
-        "description": "Get specific pull request with merge status.",
+        "description": "Fetch a single pull request along with its current merge status.\n\nAugments the stored PR with live computed fields: whether it can be\nmerged right now (fast-forward check), a reason string if it cannot,\nand how many commits the source branch is ahead of the target. Those\nfields are re-derived on each call so the UI always reflects current\nbranch state.\n\n`pr_number` is the per-node PR number (not the internal UUID).",
         "operationId": "get_pull_request_orgs__org_id__nodes__node_id__pull_requests__pr_number__get",
         "parameters": [
           {
@@ -3427,7 +3427,7 @@
           "pull-requests"
         ],
         "summary": "Merge Pull Request",
-        "description": "Merge pull request (fast-forward only).",
+        "description": "Merge a pull request into its target branch.\n\nYertle only supports **fast-forward merges**: the target branch is\nadvanced to the source branch's head commit \u2014 no merge commit is\ncreated, history stays linear. If a fast-forward is not possible\n(target has diverged), the call fails with 400 and the author must\nrebase the source branch before retrying.\n\nOn success, the PR is marked merged and the returned `merge_commit`\nis the same commit as the source branch's head at merge time.",
         "operationId": "merge_pull_request_orgs__org_id__nodes__node_id__pull_requests__pr_number__merge_post",
         "parameters": [
           {
@@ -3505,7 +3505,7 @@
           "pull-requests"
         ],
         "summary": "Close Pull Request",
-        "description": "Close pull request without merging.",
+        "description": "Close a pull request without merging it.\n\nMarks the PR as closed and is reversible only by opening a new PR \u2014\na closed PR cannot be reopened. The source branch is left intact\n(delete it separately via `DELETE \u2026/branches/{name}` if desired).",
         "operationId": "close_pull_request_orgs__org_id__nodes__node_id__pull_requests__pr_number__close_post",
         "parameters": [
           {
@@ -4063,7 +4063,7 @@
           "github-app"
         ],
         "summary": "Save Installation",
-        "description": "Save a GitHub App installation for an organization.",
+        "description": "Link a GitHub App installation to an organization.\n\nCalled by the frontend after the user completes the GitHub App install\nflow. The `installation_id` is the numeric ID GitHub returns in the\nsetup redirect; `state` is the signed token originally issued by\n`GET /github/install-state` and echoed back by GitHub.\n\nSecurity: if this installation is already linked to any organization\nin Yertle, only the original installer can re-link it. For a fresh\ninstall, the `state` token must verify against the current user and\ntarget org \u2014 otherwise the request is rejected with 403.",
         "operationId": "save_installation_orgs__org_id__github_installations_post",
         "parameters": [
           {
@@ -4452,7 +4452,7 @@
           "aws-integrations"
         ],
         "summary": "Validate Aws Integration",
-        "description": "Re-validate an AWS integration by attempting STS AssumeRole.",
+        "description": "Re-validate an AWS integration by attempting STS AssumeRole.\n\nUseful when an integration is stuck in `error` state (e.g. the customer\nupdated their trust policy after the initial `POST` failed) \u2014 calling\nthis endpoint re-attempts the AssumeRole and flips the integration back\nto `active` on success. On failure, the latest STS error message is\nstored on the integration's `last_error` field and returned in the\nresponse body.",
         "operationId": "validate_aws_integration_orgs__org_id__integrations_aws__integration_id__validate_post",
         "parameters": [
           {
