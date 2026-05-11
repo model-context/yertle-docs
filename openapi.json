@@ -2159,7 +2159,7 @@
           "nodes"
         ],
         "summary": "Get Canvas State By Branch",
-        "description": "Get canvas state for a node at a specific branch with flat structure.\n\nReturns a flat dictionary where keys are node IDs and values are complete\nstate objects. The parent node's child_nodes field contains only child node\nIDs (not nested objects). Each child node gets its own entry in the dictionary.\n\nQuery params:\n    resolve_children: \"latest\" (default) shows children at their current main HEAD.\n                      \"snapshot\" shows children as they were when last pushed.",
+        "description": "Get canvas state for a node at a specific branch with flat structure.\n\nReturns a flat dictionary where keys are node IDs and values are complete\nstate objects. The parent node's child_nodes field contains only child node\nIDs (not nested objects). Each child node gets its own entry in the dictionary.\n\nQuery params:\n    resolve_children: \"latest\" (default) shows children at their current main HEAD.\n                      \"snapshot\" shows children as they were when last pushed.\n    include_related: \"slim\" (default) keeps parent_nodes as stubs and leaves\n                     ingress/egress counterparties unresolved. \"full\" promotes each\n                     parent and each ingress/egress counterparty to its own\n                     top-level entry (mirroring children) and rewrites the root's\n                     parent_nodes field to a list of UUIDs.",
         "operationId": "get_canvas_state_by_branch_orgs__org_id__nodes__node_id__tree__branch__canvas_get",
         "parameters": [
           {
@@ -2199,6 +2199,17 @@
               "pattern": "^(latest|snapshot)$",
               "default": "latest",
               "title": "Resolve Children"
+            }
+          },
+          {
+            "name": "include_related",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^(slim|full)$",
+              "default": "slim",
+              "title": "Include Related"
             }
           },
           {
@@ -2295,6 +2306,76 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/NodeListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orgs/{org_id}/search/retrieve": {
+      "post": {
+        "tags": [
+          "search"
+        ],
+        "summary": "Retrieve Subgraph",
+        "description": "Graph-aware retrieval \u2014 returns ranked node matches for a query,\noptionally with a surrounding subgraph.\n\nPass 1 (FTS today; hybrid when embeddings are enabled) finds entry-\npoint nodes. Pass 2 graph expansion is opt-in via `expansion_depth`:\nthe default `\"none\"` returns only the ranked matches; `\"shallow\"`,\n`\"standard\"`, and `\"deep\"` progressively include children, parents,\nand connection endpoints so agent callers get enough topology to\nreason without N follow-up requests.\n\nSee docs/notes/features/rag/RETRIEVAL_API_PLAN.md.",
+        "operationId": "retrieve_subgraph_orgs__org_id__search_retrieve_post",
+        "parameters": [
+          {
+            "name": "org_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Org Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RetrieveRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RetrieveResponse"
                 }
               }
             }
@@ -2770,7 +2851,7 @@
           "node-history"
         ],
         "summary": "Get Canvas State At Commit",
-        "description": "Get canvas state for a node at a specific historical commit with flat structure.\n\nReturns a flat dictionary where keys are node IDs and values are complete\nstate objects. The parent node's child_nodes field contains only child node\nIDs (not nested objects). Each child node gets its own entry in the dictionary.\n\nThis endpoint is used for viewing historical canvas states - the canvas as it\nexisted at a specific point in time.\n\nQuery params:\n    resolve_children: \"latest\" (default) shows children at their current main HEAD.\n                      \"snapshot\" shows children as they were when this commit was pushed.",
+        "description": "Get canvas state for a node at a specific historical commit with flat structure.\n\nReturns a flat dictionary where keys are node IDs and values are complete\nstate objects. The parent node's child_nodes field contains only child node\nIDs (not nested objects). Each child node gets its own entry in the dictionary.\n\nThis endpoint is used for viewing historical canvas states - the canvas as it\nexisted at a specific point in time.\n\nQuery params:\n    resolve_children: \"latest\" (default) shows children at their current main HEAD.\n                      \"snapshot\" shows children as they were when this commit was pushed.\n    include_related: \"slim\" (default) leaves parents/ingress/egress as stubs.\n                     \"full\" also adds each related node as its own top-level entry\n                     (parents from main; ingress/egress are typically empty for\n                     non-main commit-history reads) and rewrites the root's\n                     parent_nodes to a list of UUIDs.",
         "operationId": "get_canvas_state_at_commit_orgs__org_id__nodes__node_id__tree__branch__commits__commit_id__canvas_get",
         "parameters": [
           {
@@ -2819,6 +2900,17 @@
               "pattern": "^(latest|snapshot)$",
               "default": "latest",
               "title": "Resolve Children"
+            }
+          },
+          {
+            "name": "include_related",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^(slim|full)$",
+              "default": "slim",
+              "title": "Include Related"
             }
           },
           {
@@ -4797,6 +4889,563 @@
         }
       }
     },
+    "/public/orgs/{org_id}/graph": {
+      "get": {
+        "tags": [
+          "public"
+        ],
+        "summary": "Get Public Org Graph",
+        "description": "Anonymous read of the org graph for a published org.",
+        "operationId": "get_public_org_graph_public_orgs__org_id__graph_get",
+        "parameters": [
+          {
+            "name": "org_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Org Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgGraphResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/orgs/{org_id}/nodes": {
+      "get": {
+        "tags": [
+          "public"
+        ],
+        "summary": "Get Public Org Nodes",
+        "description": "Anonymous read of all nodes in a published org.",
+        "operationId": "get_public_org_nodes_public_orgs__org_id__nodes_get",
+        "parameters": [
+          {
+            "name": "org_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Org Id"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 50,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NodeListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/orgs/{org_id}/nodes/{node_id}/tree/{branch}/complete": {
+      "get": {
+        "tags": [
+          "public"
+        ],
+        "summary": "Get Public Complete State",
+        "description": "Anonymous read of complete node state at the branch HEAD.",
+        "operationId": "get_public_complete_state_public_orgs__org_id__nodes__node_id__tree__branch__complete_get",
+        "parameters": [
+          {
+            "name": "org_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Org Id"
+            }
+          },
+          {
+            "name": "node_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Node Id"
+            }
+          },
+          {
+            "name": "branch",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Branch"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NodeCompleteStateResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/orgs/{org_id}/nodes/{node_id}/tree/{branch}/commits/{commit_id}/complete": {
+      "get": {
+        "tags": [
+          "public"
+        ],
+        "summary": "Get Public Complete State At Commit",
+        "description": "Anonymous read of node state at a specific commit (historical).",
+        "operationId": "get_public_complete_state_at_commit_public_orgs__org_id__nodes__node_id__tree__branch__commits__commit_id__complete_get",
+        "parameters": [
+          {
+            "name": "org_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Org Id"
+            }
+          },
+          {
+            "name": "node_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Node Id"
+            }
+          },
+          {
+            "name": "branch",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Branch"
+            }
+          },
+          {
+            "name": "commit_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Commit Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NodeCompleteStateResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/orgs/{org_id}/nodes/{node_id}/tree/{branch}/canvas": {
+      "get": {
+        "tags": [
+          "public"
+        ],
+        "summary": "Get Public Canvas State",
+        "description": "Anonymous read of canvas state at the branch HEAD.",
+        "operationId": "get_public_canvas_state_public_orgs__org_id__nodes__node_id__tree__branch__canvas_get",
+        "parameters": [
+          {
+            "name": "org_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Org Id"
+            }
+          },
+          {
+            "name": "node_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Node Id"
+            }
+          },
+          {
+            "name": "branch",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Branch"
+            }
+          },
+          {
+            "name": "resolve_children",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^(latest|snapshot)$",
+              "default": "latest",
+              "title": "Resolve Children"
+            }
+          },
+          {
+            "name": "include_related",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^(slim|full)$",
+              "default": "slim",
+              "title": "Include Related"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NodeCanvasStateResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/orgs/{org_id}/nodes/{node_id}/tree/{branch}/commits/{commit_id}/canvas": {
+      "get": {
+        "tags": [
+          "public"
+        ],
+        "summary": "Get Public Canvas State At Commit",
+        "description": "Anonymous read of canvas state at a specific commit (historical).",
+        "operationId": "get_public_canvas_state_at_commit_public_orgs__org_id__nodes__node_id__tree__branch__commits__commit_id__canvas_get",
+        "parameters": [
+          {
+            "name": "org_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Org Id"
+            }
+          },
+          {
+            "name": "node_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Node Id"
+            }
+          },
+          {
+            "name": "branch",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Branch"
+            }
+          },
+          {
+            "name": "commit_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Commit Id"
+            }
+          },
+          {
+            "name": "resolve_children",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^(latest|snapshot)$",
+              "default": "latest",
+              "title": "Resolve Children"
+            }
+          },
+          {
+            "name": "include_related",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^(slim|full)$",
+              "default": "slim",
+              "title": "Include Related"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NodeCanvasStateResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/orgs/{org_id}/nodes/{node_id}/tree/{branch}/commits": {
+      "get": {
+        "tags": [
+          "public"
+        ],
+        "summary": "Get Public Commits",
+        "description": "Anonymous read of commit history for a published org's node branch.",
+        "operationId": "get_public_commits_public_orgs__org_id__nodes__node_id__tree__branch__commits_get",
+        "parameters": [
+          {
+            "name": "org_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Org Id"
+            }
+          },
+          {
+            "name": "node_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Node Id"
+            }
+          },
+          {
+            "name": "branch",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Branch"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "description": "Number of commits to return",
+              "default": 50,
+              "title": "Limit"
+            },
+            "description": "Number of commits to return"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "description": "Number of commits to skip",
+              "default": 0,
+              "title": "Offset"
+            },
+            "description": "Number of commits to skip"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommitHistoryResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/orgs/{org_id}/nodes/{node_id}/branches": {
+      "get": {
+        "tags": [
+          "public"
+        ],
+        "summary": "Get Public Branches",
+        "description": "Anonymous read of branch list for a published org's node.",
+        "operationId": "get_public_branches_public_orgs__org_id__nodes__node_id__branches_get",
+        "parameters": [
+          {
+            "name": "org_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Org Id"
+            }
+          },
+          {
+            "name": "node_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Node Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BranchListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/": {
       "get": {
         "summary": "Root",
@@ -6480,14 +7129,26 @@
           "version": {
             "type": "string",
             "title": "Version",
-            "description": "API version"
+            "description": "Deployed git version (e.g. 'a17059ab-b2')"
+          },
+          "lambda_version": {
+            "type": "string",
+            "title": "Lambda Version",
+            "description": "AWS Lambda numbered version serving this request (e.g. '42')"
+          },
+          "environment": {
+            "type": "string",
+            "title": "Environment",
+            "description": "Environment name (dev/prod)"
           }
         },
         "type": "object",
         "required": [
           "status",
           "message",
-          "version"
+          "version",
+          "lambda_version",
+          "environment"
         ],
         "title": "HealthCheckResponse",
         "description": "Basic liveness/version signal for the API."
@@ -7483,6 +8144,18 @@
             "type": "integer",
             "title": "Total Edges",
             "description": "Total edge count"
+          },
+          "org_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Org Name",
+            "description": "Display name of the org (used by the public viewer's org-name card)"
           }
         },
         "type": "object",
@@ -7673,6 +8346,12 @@
             ],
             "title": "Invite Mode",
             "description": "Invite mode (open or restricted)"
+          },
+          "is_public": {
+            "type": "boolean",
+            "title": "Is Public",
+            "description": "Whether the org is published for anonymous read",
+            "default": false
           },
           "role": {
             "anyOf": [
@@ -8266,6 +8945,163 @@
         "title": "ResourceDescription",
         "description": "Detailed description of an AWS resource including tags."
       },
+      "RetrievalScopeRequest": {
+        "properties": {
+          "root_node_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Root Node Id",
+            "description": "Restrict matches to this node and its descendants"
+          },
+          "tag_filters": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tag Filters",
+            "description": "Pre-filter matches by tag key/value (intersection semantics)"
+          },
+          "directory_prefix": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Directory Prefix",
+            "description": "Restrict matches to nodes whose directory starts with this prefix"
+          }
+        },
+        "type": "object",
+        "title": "RetrievalScopeRequest",
+        "description": "Optional scope filters for graph-aware retrieval."
+      },
+      "RetrieveRequest": {
+        "properties": {
+          "query": {
+            "type": "string",
+            "title": "Query",
+            "description": "Natural-language query or keywords"
+          },
+          "top_k": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 50.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Top K",
+            "description": "Number of entry-point matches before graph expansion",
+            "default": 5
+          },
+          "expansion_depth": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "none",
+                  "shallow",
+                  "standard",
+                  "deep"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expansion Depth",
+            "description": "How aggressively Pass 2 walks the graph. 'none' (default) returns only the ranked matches with no graph expansion; 'shallow'/'standard'/'deep' progressively include children, parents, and connection endpoints.",
+            "default": "none"
+          },
+          "scope": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RetrievalScopeRequest"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Optional scope filters"
+          },
+          "include_raw_text": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Include Raw Text",
+            "description": "Return the prose text_content per node (for debugging / eval)",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "query"
+        ],
+        "title": "RetrieveRequest",
+        "description": "Request body for POST /orgs/{org_id}/search/retrieve.\n\nSee docs/notes/features/rag/RETRIEVAL_API_PLAN.md for the\nfull API design."
+      },
+      "RetrieveResponse": {
+        "properties": {
+          "query": {
+            "type": "string",
+            "title": "Query"
+          },
+          "matches": {
+            "items": {
+              "$ref": "#/components/schemas/SubgraphMatch"
+            },
+            "type": "array",
+            "title": "Matches"
+          },
+          "nodes": {
+            "items": {
+              "$ref": "#/components/schemas/SubgraphNode"
+            },
+            "type": "array",
+            "title": "Nodes"
+          },
+          "connections": {
+            "items": {
+              "$ref": "#/components/schemas/SubgraphConnection"
+            },
+            "type": "array",
+            "title": "Connections"
+          }
+        },
+        "type": "object",
+        "required": [
+          "query",
+          "matches",
+          "nodes",
+          "connections"
+        ],
+        "title": "RetrieveResponse",
+        "description": "Response for POST /orgs/{org_id}/search/retrieve."
+      },
       "SaveInstallationRequest": {
         "properties": {
           "installation_id": {
@@ -8457,6 +9293,158 @@
         "title": "SignUpResponse",
         "description": "Response model for successful sign up."
       },
+      "SubgraphConnection": {
+        "properties": {
+          "connection_id": {
+            "type": "string",
+            "title": "Connection Id"
+          },
+          "from_node_id": {
+            "type": "string",
+            "title": "From Node Id"
+          },
+          "from_title": {
+            "type": "string",
+            "title": "From Title"
+          },
+          "to_node_id": {
+            "type": "string",
+            "title": "To Node Id"
+          },
+          "to_title": {
+            "type": "string",
+            "title": "To Title"
+          },
+          "label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Label"
+          },
+          "connection_type": {
+            "type": "string",
+            "title": "Connection Type",
+            "default": "default"
+          }
+        },
+        "type": "object",
+        "required": [
+          "connection_id",
+          "from_node_id",
+          "from_title",
+          "to_node_id",
+          "to_title"
+        ],
+        "title": "SubgraphConnection",
+        "description": "An edge between two nodes in the expanded subgraph."
+      },
+      "SubgraphMatch": {
+        "properties": {
+          "node_id": {
+            "type": "string",
+            "title": "Node Id",
+            "description": "Matched node UUID"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title",
+            "description": "Matched node title"
+          },
+          "score": {
+            "type": "number",
+            "title": "Score",
+            "description": "Pass-1 ranker score"
+          },
+          "match_reason": {
+            "type": "string",
+            "enum": [
+              "fts",
+              "vector",
+              "hybrid"
+            ],
+            "title": "Match Reason",
+            "description": "Which Pass-1 branch produced this hit",
+            "default": "fts"
+          }
+        },
+        "type": "object",
+        "required": [
+          "node_id",
+          "title",
+          "score"
+        ],
+        "title": "SubgraphMatch",
+        "description": "An entry-point hit from Pass 1 (FTS today; hybrid later)."
+      },
+      "SubgraphNode": {
+        "properties": {
+          "node_id": {
+            "type": "string",
+            "title": "Node Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "path": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Path",
+            "description": "Ancestry path of titles, root \u2192 leaf"
+          },
+          "tags": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Tags"
+          },
+          "directories": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Directories"
+          },
+          "text_content": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text Content",
+            "description": "Prose text_content (only when include_raw_text=true)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "node_id",
+          "title"
+        ],
+        "title": "SubgraphNode",
+        "description": "A node in the expanded subgraph response."
+      },
       "TokenRequest": {
         "properties": {
           "token": {
@@ -8528,6 +9516,18 @@
             ],
             "title": "Invite Mode",
             "description": "Invite mode"
+          },
+          "is_public": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Public",
+            "description": "If true, the org becomes anonymously readable via /public/... routes"
           }
         },
         "type": "object",
@@ -8537,17 +9537,33 @@
       "UpdateSettingsResponse": {
         "properties": {
           "invite_mode": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Invite Mode",
-            "description": "Current invite mode"
+            "description": "Current invite mode (if changed)"
+          },
+          "is_public": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Public",
+            "description": "Current is_public flag (if changed)"
           }
         },
         "type": "object",
-        "required": [
-          "invite_mode"
-        ],
         "title": "UpdateSettingsResponse",
-        "description": "Response for PATCH /orgs/{org_id}/settings."
+        "description": "Response for PATCH /orgs/{org_id}/settings.\n\nOnly the fields that were updated in this request are populated; others\nare omitted (None). The handler builds the response from the service\nlayer's per-field result dict."
       },
       "ValidationError": {
         "properties": {

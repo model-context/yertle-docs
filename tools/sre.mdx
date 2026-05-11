@@ -1,0 +1,58 @@
+---
+title: Yertle SRE
+description: "Natural-language SRE agent for systems modeled in Yertle."
+---
+
+`yertle-sre` lets you ask plain-English questions about your software systems — "are any alarms firing for the payments service?", "what changed in this repo last week?", "which AWS resources back this Yertle node?" — and get answers grounded in your Yertle architecture graph plus live state from the `yertle`, `aws`, and `gh` CLIs.
+
+**Repo:** [model-context/yertle-sre](https://github.com/model-context/yertle-sre)
+
+<Note>
+  **Status: alpha (v0.1).** The CLI surface and configuration are still evolving. Expect changes.
+</Note>
+
+## How it works
+
+`yertle-sre` is a small [LangGraph](https://github.com/langchain-ai/langgraph) agent powered by Anthropic's Claude. It runs in a ReAct loop: Claude decides which tool to call, the tool returns results, Claude decides what to do next, and the loop ends when Claude has an answer.
+
+Three read-only tool runners are exposed to the model:
+
+- **`yertle_run`** — wraps the `yertle` CLI (`orgs`, `nodes`, `tree`, `canvas`, `about`, `config`) with `--format json` auto-appended.
+- **`aws_run`** — wraps the `aws` CLI, restricted to read verbs (`describe-*`, `list-*`, `get-*`, `show-*`, `search-*`, `head-*`, `lookup-*`).
+- **`gh_run`** — wraps the `gh` CLI for `list`/`view`/`status` reads and GET-only `gh api` calls.
+
+Destructive invocations are refused before they reach the CLI, so the agent is safe to run against production by default.
+
+## What you can do with it
+
+```bash
+yertle-sre ask "what orgs do I have in yertle?"
+yertle-sre ask "show me failed github actions runs in model-context/yertle-cli"
+yertle-sre ask "given my architecture graph, which AWS services back the api node?"
+```
+
+Interactive REPL that preserves context across questions:
+
+```bash
+yertle-sre repl
+```
+
+It also ships as a Python library — `from yertle_sre import ask, build_agent` — for embedding in larger workflows.
+
+## Setup
+
+Requires Python 3.11+ and the `yertle`, `aws`, and `gh` CLIs already authenticated on your machine. `yertle-sre` uses *your* credentials and inherits your shell environment — there's no separate credential store.
+
+```bash
+uv tool install yertle-sre
+# or
+pipx install yertle-sre
+
+export ANTHROPIC_API_KEY=sk-ant-...
+```
+
+See the [yertle-sre README](https://github.com/model-context/yertle-sre) for the full configuration reference (model selection, tool timeouts, iteration caps, LangSmith tracing).
+
+## Contributing
+
+The repo is open source. Bug reports and PRs welcome — especially around the system prompt and example questions, which directly shape agent behavior.

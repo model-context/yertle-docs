@@ -38,6 +38,12 @@ yertle tree
 
 # Render an ASCII canvas of a node and its children
 yertle canvas <node-id>
+
+# Natural-language search: rank nodes most likely to match a query
+yertle rag "api gateway in the webapp"
+
+# Same search, plus parents/children/connections of the matches
+yertle rag "checkout payment" --expand standard
 ```
 
 ## Output formats

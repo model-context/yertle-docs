@@ -28,7 +28,8 @@
         "group": "Tools",
         "pages": [
           "tools/cli",
-          "tools/mcp"
+          "tools/mcp",
+          "tools/sre"
         ]
       },
       {
@@ -61,10 +62,7 @@
           "api-reference/organizations/get-invitation-details",
           "api-reference/organizations/accept-invitation",
           "api-reference/organizations/list-invite-links",
-          "api-reference/organizations/regenerate-invite-link",
-          "api-reference/organizations/list-allowed-emails",
-          "api-reference/organizations/add-allowed-emails",
-          "api-reference/organizations/delete-allowed-email"
+          "api-reference/organizations/regenerate-invite-link"
         ]
       },
       {
@@ -125,7 +123,21 @@
       {
         "group": "Search",
         "pages": [
-          "api-reference/search/search-nodes"
+          "api-reference/search/search-nodes",
+          "api-reference/search/retrieve-subgraph"
+        ]
+      },
+      {
+        "group": "Public API",
+        "pages": [
+          "api-reference/public/get-public-org-graph",
+          "api-reference/public/list-public-org-nodes",
+          "api-reference/public/get-public-complete-state",
+          "api-reference/public/get-public-complete-state-at-commit",
+          "api-reference/public/get-public-canvas-state",
+          "api-reference/public/get-public-canvas-state-at-commit",
+          "api-reference/public/list-public-commits",
+          "api-reference/public/list-public-branches"
         ]
       },
       {
@@ -133,53 +145,6 @@
         "pages": [
           "api-reference/graph/get-all-orgs-graph",
           "api-reference/graph/get-org-graph"
-        ]
-      },
-      {
-        "group": "Auto Create",
-        "pages": [
-          "api-reference/auto-create/start-auto-create",
-          "api-reference/auto-create/list-auto-create-jobs",
-          "api-reference/auto-create/get-auto-create-job",
-          "api-reference/auto-create/get-auto-create-job-nodes"
-        ]
-      },
-      {
-        "group": "Integrations",
-        "pages": [
-          "api-reference/integrations/list-integrations",
-          "api-reference/integrations/delete-integration"
-        ]
-      },
-      {
-        "group": "AWS Integrations",
-        "pages": [
-          "api-reference/aws-integrations/get-setup-info",
-          "api-reference/aws-integrations/create-aws-integration",
-          "api-reference/aws-integrations/validate-aws-integration",
-          "api-reference/aws-integrations/check-resource",
-          "api-reference/aws-integrations/describe-resource",
-          "api-reference/aws-integrations/get-metrics"
-        ]
-      },
-      {
-        "group": "GitHub App",
-        "pages": [
-          "api-reference/github-app/get-install-state",
-          "api-reference/github-app/save-installation",
-          "api-reference/github-app/get-my-installations"
-        ]
-      },
-      {
-        "group": "Notifications",
-        "pages": [
-          "api-reference/notifications/notify-new-signup"
-        ]
-      },
-      {
-        "group": "Contact",
-        "pages": [
-          "api-reference/contact-messages/create-contact-message"
         ]
       },
       {
