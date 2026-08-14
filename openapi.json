@@ -84,7 +84,7 @@
           "authentication"
         ],
         "summary": "Sign In",
-        "description": "Sign in a user and return authentication tokens.",
+        "description": "Sign in a user and return authentication tokens.\n\nDeprecated for API-consumer use \u2014 use Personal Access Tokens instead.\nRetained for local dev where there is no Cognito to hit.",
         "operationId": "sign_in_auth_signin_post",
         "requestBody": {
           "content": {
@@ -117,7 +117,8 @@
               }
             }
           }
-        }
+        },
+        "deprecated": true
       }
     },
     "/auth/signup": {
@@ -126,7 +127,7 @@
           "authentication"
         ],
         "summary": "Sign Up",
-        "description": "Sign up a new user.",
+        "description": "Sign up a new user.\n\nDeprecated for API-consumer use \u2014 production accounts are provisioned\nby admin or via Amplify signup direct-to-Cognito. Retained for local\ndev where the frontend's local-mode signup flow (AuthForm.js) creates\ntest users through LocalAuthService.",
         "operationId": "sign_up_auth_signup_post",
         "requestBody": {
           "content": {
@@ -159,116 +160,31 @@
               }
             }
           }
-        }
-      }
-    },
-    "/auth/refresh": {
-      "post": {
-        "tags": [
-          "authentication"
-        ],
-        "summary": "Refresh Token",
-        "description": "Refresh an access token using a refresh token.",
-        "operationId": "refresh_token_auth_refresh_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RefreshTokenRequest"
-              }
-            }
-          },
-          "required": true
         },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RefreshTokenResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/auth/verify": {
-      "post": {
-        "tags": [
-          "authentication"
-        ],
-        "summary": "Verify Token",
-        "description": "Verify if a token is valid and return user information.",
-        "operationId": "verify_token_auth_verify_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/VerifyTokenRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/VerifyTokenResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/auth/me": {
-      "get": {
-        "tags": [
-          "authentication"
-        ],
-        "summary": "Get Current User Info",
-        "description": "Get current user information from token (placeholder for testing).",
-        "operationId": "get_current_user_info_auth_me_get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CurrentUserPlaceholderResponse"
-                }
-              }
-            }
-          }
-        }
+        "deprecated": true
       }
     },
     "/orgs": {
+      "get": {
+        "tags": [
+          "organizations"
+        ],
+        "summary": "List Organizations",
+        "description": "List organizations for the current user.",
+        "operationId": "list_organizations_orgs_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrganizationListResponse"
+                }
+              }
+            }
+          }
+        }
+      },
       "post": {
         "tags": [
           "organizations"
@@ -276,33 +192,15 @@
         "summary": "Create Organization",
         "description": "Create a new organization.",
         "operationId": "create_organization_orgs_post",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
-            }
-          }
-        ],
         "requestBody": {
-          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/CreateOrganizationRequest"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "201": {
@@ -311,54 +209,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/OrganizationResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      },
-      "get": {
-        "tags": [
-          "organizations"
-        ],
-        "summary": "List Organizations",
-        "description": "List organizations for the current user.",
-        "operationId": "list_organizations_orgs_get",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/OrganizationListResponse"
                 }
               }
             }
@@ -393,24 +243,59 @@
               "type": "string",
               "title": "Org Id"
             }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrganizationResponse"
                 }
-              ],
-              "title": "Authorization"
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "organizations"
+        ],
+        "summary": "Update Organization",
+        "description": "Update an organization's name and/or description. Owner only.",
+        "operationId": "update_organization_orgs__org_id__patch",
+        "parameters": [
+          {
+            "name": "org_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Org Id"
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateOrganizationRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -449,22 +334,6 @@
             "schema": {
               "type": "string",
               "title": "Org Id"
-            }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
             }
           }
         ],
@@ -508,22 +377,6 @@
             "schema": {
               "type": "string",
               "title": "Org Id"
-            }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
             }
           }
         ],
@@ -578,22 +431,6 @@
               "type": "string",
               "title": "Org Id"
             }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
-            }
           }
         ],
         "requestBody": {
@@ -645,22 +482,6 @@
               "type": "string",
               "title": "Org Id"
             }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
-            }
           }
         ],
         "responses": {
@@ -673,6 +494,42 @@
                 }
               }
             }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orgs/{org_id}/members/me": {
+      "delete": {
+        "tags": [
+          "organizations"
+        ],
+        "summary": "Leave Organization",
+        "description": "Current user leaves the organization. Viewers and editors only.\n\nOwners cannot leave \u2014 they must delete the organization or transfer\nownership first.",
+        "operationId": "leave_organization_orgs__org_id__members_me_delete",
+        "parameters": [
+          {
+            "name": "org_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Org Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
           },
           "422": {
             "description": "Validation Error",
@@ -712,22 +569,6 @@
             "schema": {
               "type": "string",
               "title": "Member User Id"
-            }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
             }
           }
         ],
@@ -798,33 +639,15 @@
         "summary": "Accept Invitation",
         "description": "Accept an invite link to join an organization.\n\nThe user's email (from JWT claims) is checked against the allowlist\nif the organization is in restricted mode.",
         "operationId": "accept_invitation_invitations_accept_post",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
-            }
-          }
-        ],
         "requestBody": {
-          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/TokenRequest"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -866,22 +689,6 @@
             "schema": {
               "type": "string",
               "title": "Org Id"
-            }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
             }
           }
         ],
@@ -935,22 +742,6 @@
               "type": "string",
               "title": "Link Id"
             }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
-            }
           }
         ],
         "responses": {
@@ -994,22 +785,6 @@
               "type": "string",
               "title": "Org Id"
             }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
-            }
           }
         ],
         "responses": {
@@ -1050,22 +825,6 @@
             "schema": {
               "type": "string",
               "title": "Org Id"
-            }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
             }
           }
         ],
@@ -1129,22 +888,6 @@
               "type": "string",
               "title": "Email Id"
             }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
-            }
           }
         ],
         "responses": {
@@ -1184,22 +927,6 @@
               "title": "Root"
             },
             "description": "Root path to start tree from"
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
-            }
           }
         ],
         "responses": {
@@ -1258,22 +985,6 @@
               "title": "Includesubdirs"
             },
             "description": "Include nodes from subdirectories"
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
-            }
           }
         ],
         "responses": {
@@ -1326,22 +1037,6 @@
             "schema": {
               "type": "string",
               "title": "Prefix"
-            }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
             }
           }
         ],
@@ -1410,22 +1105,6 @@
               "title": "Includesubdirs"
             },
             "description": "Include nodes from subdirectories"
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
-            }
           }
         ],
         "responses": {
@@ -1470,22 +1149,6 @@
               "format": "uuid",
               "title": "Org Id"
             }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
-            }
           }
         ],
         "responses": {
@@ -1520,24 +1183,6 @@
         "summary": "Get All Orgs Hierarchy",
         "description": "Get the containment hierarchy across all organizations the user belongs to.\n\nReturns all nodes and their positions in the parent/child ownership\nstructure, scoped to orgs the user is a member of.",
         "operationId": "get_all_orgs_hierarchy_orgs_all_hierarchy_get",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -1545,16 +1190,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/HierarchyResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
                 }
               }
             }
@@ -1579,22 +1214,6 @@
               "type": "string",
               "format": "uuid",
               "title": "Org Id"
-            }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
             }
           }
         ],
@@ -1650,22 +1269,6 @@
               "default": 0,
               "title": "Offset"
             }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
-            }
           }
         ],
         "responses": {
@@ -1709,22 +1312,6 @@
               "type": "string",
               "format": "uuid",
               "title": "Org Id"
-            }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
             }
           }
         ],
@@ -1798,22 +1385,6 @@
               "default": 0,
               "title": "Offset"
             }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
-            }
           }
         ],
         "responses": {
@@ -1866,22 +1437,6 @@
             "schema": {
               "type": "string",
               "title": "Node Id"
-            }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
             }
           }
         ],
@@ -1944,22 +1499,6 @@
             "schema": {
               "type": "string",
               "title": "Branch"
-            }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
             }
           }
         ],
@@ -2033,22 +1572,6 @@
               "type": "string",
               "title": "Branch"
             }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
-            }
           }
         ],
         "responses": {
@@ -2110,22 +1633,6 @@
             "schema": {
               "type": "string",
               "title": "Branch"
-            }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
             }
           }
         ],
@@ -2211,22 +1718,6 @@
               "default": "slim",
               "title": "Include Related"
             }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
-            }
           }
         ],
         "responses": {
@@ -2270,22 +1761,6 @@
               "type": "string",
               "format": "uuid",
               "title": "Org Id"
-            }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
             }
           }
         ],
@@ -2340,22 +1815,6 @@
               "type": "string",
               "format": "uuid",
               "title": "Org Id"
-            }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
             }
           }
         ],
@@ -2453,22 +1912,6 @@
               "title": "Offset"
             },
             "description": "Number of commits to skip"
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
-            }
           }
         ],
         "responses": {
@@ -2542,22 +1985,6 @@
               "default": 0,
               "title": "Offset"
             }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
-            }
           }
         ],
         "responses": {
@@ -2628,22 +2055,6 @@
             "schema": {
               "type": "string",
               "title": "Commit Id"
-            }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
             }
           }
         ],
@@ -2716,22 +2127,6 @@
               "type": "string",
               "title": "Commit B"
             }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
-            }
           }
         ],
         "responses": {
@@ -2802,22 +2197,6 @@
             "schema": {
               "type": "string",
               "title": "Commit Id"
-            }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
             }
           }
         ],
@@ -2912,22 +2291,6 @@
               "default": "slim",
               "title": "Include Related"
             }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
-            }
           }
         ],
         "responses": {
@@ -2979,22 +2342,6 @@
             "schema": {
               "type": "string",
               "title": "Node Id"
-            }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
             }
           }
         ],
@@ -3055,22 +2402,6 @@
             "schema": {
               "type": "string",
               "title": "Node Id"
-            }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
             }
           }
         ],
@@ -3141,22 +2472,6 @@
             "schema": {
               "type": "string",
               "title": "Target Branch"
-            }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
             }
           }
         ],
@@ -3229,22 +2544,6 @@
               "default": false,
               "title": "Force"
             }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
-            }
           }
         ],
         "responses": {
@@ -3296,22 +2595,6 @@
             "schema": {
               "type": "string",
               "title": "Node Id"
-            }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
             }
           }
         ],
@@ -3540,22 +2823,6 @@
               "type": "integer",
               "title": "Pr Number"
             }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
-            }
           }
         ],
         "responses": {
@@ -3617,22 +2884,6 @@
               "type": "integer",
               "title": "Pr Number"
             }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
-            }
           }
         ],
         "responses": {
@@ -3667,24 +2918,6 @@
         "summary": "Get All Orgs Graph",
         "description": "Get graph across all organizations the user is a member of.",
         "operationId": "get_all_orgs_graph_orgs_all_graph_get",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -3692,16 +2925,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/OrgGraphResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
                 }
               }
             }
@@ -3726,22 +2949,6 @@
               "type": "string",
               "format": "uuid",
               "title": "Org Id"
-            }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
             }
           }
         ],
@@ -3829,22 +3036,6 @@
               "format": "uuid",
               "title": "Org Id"
             }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
-            }
           }
         ],
         "requestBody": {
@@ -3898,22 +3089,6 @@
               "type": "string",
               "format": "uuid",
               "title": "Org Id"
-            }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
             }
           }
         ],
@@ -3969,22 +3144,6 @@
               "format": "uuid",
               "title": "Job Id"
             }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
-            }
           }
         ],
         "responses": {
@@ -4039,22 +3198,6 @@
               "format": "uuid",
               "title": "Job Id"
             }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
-            }
           }
         ],
         "responses": {
@@ -4097,22 +3240,6 @@
             "schema": {
               "type": "string",
               "title": "Org Id"
-            }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
             }
           }
         ],
@@ -4158,22 +3285,6 @@
               "format": "uuid",
               "title": "Org Id"
             }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
-            }
           }
         ],
         "requestBody": {
@@ -4218,24 +3329,6 @@
         "summary": "Get My Installations",
         "description": "List all GitHub App installations created by the current user.",
         "operationId": "get_my_installations_github_my_installations_get",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -4243,16 +3336,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/GitHubInstallationsListResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
                 }
               }
             }
@@ -4293,22 +3376,6 @@
                 }
               ],
               "title": "Provider Type"
-            }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
             }
           }
         ],
@@ -4364,22 +3431,6 @@
               "format": "uuid",
               "title": "Integration Id"
             }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
-            }
           }
         ],
         "responses": {
@@ -4416,22 +3467,6 @@
               "type": "string",
               "format": "uuid",
               "title": "Org Id"
-            }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
             }
           }
         ],
@@ -4476,22 +3511,6 @@
               "type": "string",
               "format": "uuid",
               "title": "Org Id"
-            }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
             }
           }
         ],
@@ -4557,22 +3576,6 @@
               "format": "uuid",
               "title": "Integration Id"
             }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
-            }
           }
         ],
         "responses": {
@@ -4626,22 +3629,6 @@
               "type": "string",
               "format": "uuid",
               "title": "Integration Id"
-            }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
             }
           }
         ],
@@ -4707,22 +3694,6 @@
               "format": "uuid",
               "title": "Integration Id"
             }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
-            }
           }
         ],
         "requestBody": {
@@ -4787,22 +3758,6 @@
               "format": "uuid",
               "title": "Integration Id"
             }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
-            }
           }
         ],
         "requestBody": {
@@ -4847,24 +3802,6 @@
         "summary": "Notify New Signup",
         "description": "Publish a signup notification. Email comes from JWT, not request body.",
         "operationId": "notify_new_signup_notifications_new_signup_post",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
-            }
-          }
-        ],
         "responses": {
           "202": {
             "description": "Successful Response",
@@ -4875,6 +3812,116 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/tokens": {
+      "post": {
+        "tags": [
+          "tokens"
+        ],
+        "summary": "Create a personal access token",
+        "description": "Issue a new personal access token.\n\nThe raw token is returned **exactly once** in the response. Save it\nimmediately \u2014 it cannot be retrieved again.",
+        "operationId": "create_token_tokens_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTokenRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatedTokenResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "tokens"
+        ],
+        "summary": "List the caller's personal access tokens",
+        "description": "List the caller's tokens. Excludes revoked tokens unless `include_revoked=true`.",
+        "operationId": "list_tokens_tokens_get",
+        "parameters": [
+          {
+            "name": "include_revoked",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Include Revoked"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tokens/{token_id}": {
+      "delete": {
+        "tags": [
+          "tokens"
+        ],
+        "summary": "Revoke a personal access token",
+        "description": "Soft-revoke the token. Subsequent auth attempts with it will fail with 401.",
+        "operationId": "revoke_token_tokens__token_id__delete",
+        "parameters": [
+          {
+            "name": "token_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Token Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
           },
           "422": {
             "description": "Validation Error",
@@ -6583,7 +5630,7 @@
                 "type": "null"
               }
             ],
-            "title": "Tags",
+            "title": "CreateNodeRequestTags",
             "description": "Node tags"
           },
           "directories": {
@@ -6724,26 +5771,84 @@
         "title": "CreatePRResponse",
         "description": "Response for creating a pull request."
       },
-      "CurrentUserPlaceholderResponse": {
+      "CreateTokenRequest": {
         "properties": {
-          "message": {
+          "name": {
             "type": "string",
-            "title": "Message",
-            "description": "Human-readable guidance"
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Name",
+            "description": "User-supplied display name (e.g. 'my-laptop-cli')."
           },
-          "hint": {
-            "type": "string",
-            "title": "Hint",
-            "description": "Hint on how to authenticate"
+          "expires_in_days": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 730.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires In Days",
+            "description": "Optional expiry in days. Omit for a non-expiring token."
           }
         },
         "type": "object",
         "required": [
-          "message",
-          "hint"
+          "name"
         ],
-        "title": "CurrentUserPlaceholderResponse",
-        "description": "Placeholder response for GET /auth/me.\n\nThe production endpoint requires a valid bearer token. This shape is what\ncallers see when hitting the endpoint without authentication."
+        "title": "CreateTokenRequest",
+        "description": "Request body for `POST /tokens` \u2014 issue a personal access token."
+      },
+      "CreatedTokenResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "token": {
+            "type": "string",
+            "title": "Token",
+            "description": "The bearer token. Save it now \u2014 won't be shown again."
+          },
+          "prefix": {
+            "type": "string",
+            "title": "Prefix"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "token",
+          "prefix",
+          "created_at"
+        ],
+        "title": "CreatedTokenResponse",
+        "description": "One-time response from `POST /tokens` \u2014 contains the raw token.\n\nThe raw token cannot be retrieved again. Surface it to the user\nimmediately with a copy-to-clipboard prompt and a warning."
       },
       "DatabaseStatusResponse": {
         "properties": {
@@ -7621,7 +6726,7 @@
           "tags": {
             "additionalProperties": true,
             "type": "object",
-            "title": "Tags",
+            "title": "NodeCompleteStateResponseTags",
             "description": "Node tags"
           },
           "directories": {
@@ -7803,7 +6908,7 @@
                 "type": "null"
               }
             ],
-            "title": "Tags",
+            "title": "NodeResponseTags",
             "description": "Node tags"
           },
           "directories": {
@@ -7899,7 +7004,7 @@
                 "type": "null"
               }
             ],
-            "title": "Tags",
+            "title": "NodeSearchFiltersTags",
             "description": "Tag key-value pairs to filter by"
           },
           "tag_match_mode": {
@@ -8693,7 +7798,34 @@
           "expected_head_commit"
         ],
         "title": "PushStateRequest",
-        "description": "Request model for Git-like full-state push operations."
+        "description": "Request model for Git-like full-state push operations.",
+        "example": {
+          "message": "Update node configuration and tags",
+          "state": {
+            "directories": [
+              "/services",
+              "/apis",
+              "/docs"
+            ],
+            "node": {
+              "description": "Production service configuration",
+              "metadata": {},
+              "title": "My Application Node"
+            },
+            "tags": {
+              "environment": {
+                "link": "https://wiki.example.com/envs",
+                "value": "production"
+              },
+              "team": {
+                "value": "backend"
+              },
+              "version": {
+                "value": "v2.1.0"
+              }
+            }
+          }
+        }
       },
       "PushStateResponse": {
         "properties": {
@@ -8765,7 +7897,16 @@
           "objects_reused"
         ],
         "title": "PushStateResponse",
-        "description": "Response model for Git-like full-state push operations."
+        "description": "Response model for Git-like full-state push operations.",
+        "example": {
+          "branch": "main",
+          "commit_id": "550e8400-e29b-41d4-a716-446655440000",
+          "message": "Update node configuration and tags",
+          "node_id": "123e4567-e89b-12d3-a456-426614174000",
+          "objects_created": 2,
+          "objects_reused": 3,
+          "previous_commit": "456e7890-e29b-41d4-a716-446655440001"
+        }
       },
       "ReadinessCheckResponse": {
         "properties": {
@@ -8795,48 +7936,6 @@
         ],
         "title": "ReadinessCheckResponse",
         "description": "Readiness probe \u2014 reports database connectivity and downstream services."
-      },
-      "RefreshTokenRequest": {
-        "properties": {
-          "refreshToken": {
-            "type": "string",
-            "title": "Refreshtoken",
-            "description": "Refresh token"
-          }
-        },
-        "type": "object",
-        "required": [
-          "refreshToken"
-        ],
-        "title": "RefreshTokenRequest",
-        "description": "Request model for token refresh."
-      },
-      "RefreshTokenResponse": {
-        "properties": {
-          "accessToken": {
-            "type": "string",
-            "title": "Accesstoken",
-            "description": "New access token"
-          },
-          "tokenType": {
-            "type": "string",
-            "title": "Tokentype",
-            "description": "Token type (e.g. 'Bearer')"
-          },
-          "expiresIn": {
-            "type": "integer",
-            "title": "Expiresin",
-            "description": "Access token lifetime in seconds"
-          }
-        },
-        "type": "object",
-        "required": [
-          "accessToken",
-          "tokenType",
-          "expiresIn"
-        ],
-        "title": "RefreshTokenResponse",
-        "description": "Response for POST /auth/refresh."
       },
       "ResourceCheckResult": {
         "properties": {
@@ -8921,10 +8020,11 @@
             "default": ""
           },
           "tags": {
-            "additionalProperties": true,
+            "additionalProperties": {
+              "type": "string"
+            },
             "type": "object",
-            "title": "Tags",
-            "default": {}
+            "title": "ResourceDescriptionTags"
           },
           "error": {
             "anyOf": [
@@ -9159,7 +8259,7 @@
           "user": {
             "additionalProperties": true,
             "type": "object",
-            "title": "User",
+            "title": "SignInResponseUser",
             "description": "User information"
           },
           "accessToken": {
@@ -9251,7 +8351,7 @@
           "user": {
             "additionalProperties": true,
             "type": "object",
-            "title": "User",
+            "title": "SignUpResponseUser",
             "description": "Created user information"
           },
           "accessToken": {
@@ -9415,7 +8515,7 @@
               "type": "string"
             },
             "type": "object",
-            "title": "Tags"
+            "title": "SubgraphNodeTags"
           },
           "directories": {
             "items": {
@@ -9444,6 +8544,95 @@
         ],
         "title": "SubgraphNode",
         "description": "A node in the expanded subgraph response."
+      },
+      "TokenListItem": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "prefix": {
+            "type": "string",
+            "title": "Prefix",
+            "description": "First 12 chars of the raw token (e.g. 'yrt_abc12345')."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "last_used_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Used At"
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires At"
+          },
+          "revoked_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Revoked At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "prefix",
+          "created_at"
+        ],
+        "title": "TokenListItem",
+        "description": "One row in `GET /tokens` \u2014 metadata only, never the raw secret."
+      },
+      "TokenListResponse": {
+        "properties": {
+          "tokens": {
+            "items": {
+              "$ref": "#/components/schemas/TokenListItem"
+            },
+            "type": "array",
+            "title": "Tokens"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tokens",
+          "total"
+        ],
+        "title": "TokenListResponse",
+        "description": "Response for `GET /tokens`."
       },
       "TokenRequest": {
         "properties": {
@@ -9534,6 +8723,39 @@
         "title": "UpdateOrgSettingsRequest",
         "description": "Request model for updating organization settings."
       },
+      "UpdateOrganizationRequest": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name",
+            "description": "New organization name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description",
+            "description": "New organization description"
+          }
+        },
+        "type": "object",
+        "title": "UpdateOrganizationRequest",
+        "description": "Request model for updating an organization's identity fields (name, description)."
+      },
       "UpdateSettingsResponse": {
         "properties": {
           "invite_mode": {
@@ -9604,62 +8826,19 @@
           "type"
         ],
         "title": "ValidationError"
-      },
-      "VerifyTokenRequest": {
-        "properties": {
-          "token": {
-            "type": "string",
-            "title": "Token",
-            "description": "Token to verify"
-          }
-        },
-        "type": "object",
-        "required": [
-          "token"
-        ],
-        "title": "VerifyTokenRequest",
-        "description": "Request model for token verification."
-      },
-      "VerifyTokenResponse": {
-        "properties": {
-          "valid": {
-            "type": "boolean",
-            "title": "Valid",
-            "description": "Whether token is valid"
-          },
-          "user": {
-            "anyOf": [
-              {
-                "additionalProperties": true,
-                "type": "object"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "User",
-            "description": "User info if token is valid"
-          },
-          "expires": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Expires",
-            "description": "Token expiry time"
-          }
-        },
-        "type": "object",
-        "required": [
-          "valid"
-        ],
-        "title": "VerifyTokenResponse",
-        "description": "Response model for token verification."
+      }
+    },
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT or yrt_*"
       }
     }
-  }
+  },
+  "security": [
+    {
+      "BearerAuth": []
+    }
+  ]
 }

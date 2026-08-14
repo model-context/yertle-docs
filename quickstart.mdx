@@ -7,32 +7,26 @@ This guide walks you through authenticating, listing your organizations, and rea
 
 ## 1. Get an account
 
-Sign up at [yertle.com](https://yertle.com) and create or join an organization. Make note of your email and password — you'll use them to authenticate.
+Sign up at [yertle.com](https://yertle.com) and create or join an organization.
 
-## 2. Authenticate
+## 2. Generate a Personal Access Token
 
-Yertle uses Cognito-issued JWT bearer tokens. The simplest way to get one is via the [Yertle CLI](/tools/cli):
+Sign in to [yertle.com](https://yertle.com), open your [settings page](https://yertle.com/settings), and under **Personal Access Tokens** click **Create token**. Give it a descriptive name (e.g. "quickstart laptop") and copy the token — it starts with `yrt_` and you'll only see it once.
 
-```bash
-brew tap model-context/yertle
-brew install yertle
-yertle auth login
-```
-
-This stores your access token at `~/.yertle/config.json`. You can extract it with:
+Export it:
 
 ```bash
-cat ~/.yertle/config.json | jq -r '.auth.access_token'
+export YERTLE_TOKEN="yrt_..."
 ```
 
-For details on doing this without the CLI, see the [Authentication guide](/authentication).
+For alternatives (Yertle CLI wrapper, Cognito browser session), see the [Authentication guide](/authentication).
 
 ## 3. Make your first API call
 
 List the organizations you belong to:
 
 ```bash
-curl https://api.yertle.com/organizations \
+curl https://api.yertle.com/orgs \
   -H "Authorization: Bearer $YERTLE_TOKEN"
 ```
 
@@ -60,6 +54,22 @@ curl https://api.yertle.com/orgs/{org_id}/nodes/{node_id}/tree/main/complete \
 ```
 
 This returns the full node with parents, children, connections, tags, directories, and visual properties.
+
+## Prefer Python?
+
+Install the SDK — same three-line quickstart in code:
+
+```bash
+pip install yertle
+```
+
+```python
+import yertle
+
+yertle.configure(token="yrt_...")
+for org in yertle.orgs.list():
+    print(org.name)
+```
 
 ## Next steps
 
