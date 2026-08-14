@@ -3,52 +3,68 @@ title: Authentication
 description: "How to authenticate requests to the Yertle API."
 ---
 
-The Yertle API uses **JWT bearer tokens** issued by AWS Cognito. Every request to a protected endpoint must include an `Authorization` header.
+The Yertle API uses **Personal Access Tokens (PATs)** as the primary authentication method for API consumers — the same pattern used by GitHub, Linear, Stripe, and others. Every request to a protected endpoint must include an `Authorization` header.
 
 ## Header format
 
 ```
-Authorization: Bearer <access_token>
+Authorization: Bearer <token>
 ```
+
+The `<token>` is your PAT (a string that begins with `yrt_`).
 
 ## Getting a token
 
-### Option 1: Yertle CLI (recommended)
+### Option 1: Generate a PAT in the web app (recommended for API consumers)
 
-The easiest way is to log in with the [Yertle CLI](/tools/cli):
+1. Sign in at [yertle.com](https://yertle.com) and open your [settings page](https://yertle.com/settings).
+2. Under **Personal Access Tokens**, click **Create token**, give it a descriptive name (e.g. "my laptop", "CI runner"), and optionally set an expiry.
+3. Copy the token that begins with `yrt_...`. You'll only see it once.
 
-```bash
-yertle auth login
-```
-
-The CLI writes the token to `~/.yertle/config.json`:
+Use it directly:
 
 ```bash
-export YERTLE_TOKEN=$(cat ~/.yertle/config.json | jq -r '.auth.access_token')
+export YERTLE_TOKEN="yrt_..."
+curl -H "Authorization: Bearer $YERTLE_TOKEN" https://api.yertle.com/orgs
 ```
 
-The CLI also handles automatic token refresh — if you use the CLI itself for API calls, you don't need to think about expiration.
+Or with the [Yertle Python SDK](https://pypi.org/project/yertle/):
 
-### Option 2: Direct Cognito authentication
+```python
+import yertle
+yertle.configure(token="yrt_...")
+for org in yertle.orgs.list():
+    print(org.name)
+```
 
-If you can't use the CLI, you can authenticate directly with Cognito using the AWS SDK or any Cognito-compatible client. The user pool details are exposed by Yertle's frontend at build time and can be found in the public auth flow.
+### Option 2: Yertle CLI
 
-The Yertle CLI source ([model-context/yertle-cli](https://github.com/model-context/yertle-cli)) is a reference implementation you can study.
+The [Yertle CLI](/tools/cli) wraps PAT creation and storage — useful if you'd rather not manage the token yourself:
+
+```bash
+yertle login
+```
+
+The CLI prompts you to generate a PAT in the web UI, pastes it back, and stores it at `~/.yertle/config.json`. Subsequent `yertle` commands read from that file automatically.
+
+### Option 3: Web app (browser session)
+
+The [yertle.com](https://yertle.com) web app authenticates users via AWS Cognito with a hosted sign-in page. This flow issues short-lived Cognito JWTs used only by the browser session — it is not the recommended path for API consumers or scripts. If you're building a browser-based client, use [AWS Amplify](https://docs.amplify.aws/) against the same Cognito user pool.
 
 ## Token lifetime
 
-- **Access tokens** expire after one hour
-- **Refresh tokens** are valid for 30 days
-- The CLI automatically refreshes access tokens using the stored refresh token; SDKs and custom clients should do the same
+**Personal Access Tokens** don't expire unless you set an expiration when creating them. Rotate by creating a new token, updating your scripts/CI, then revoking the old one from the settings page — other tokens are unaffected.
+
+**Cognito JWTs** (browser-session tokens) expire after one hour and are automatically refreshed by the Amplify session in the browser. Not applicable to API consumers.
 
 ## Errors
 
 | Status | Meaning |
 |--------|---------|
-| **401 Unauthorized** | Token missing, invalid, or expired |
+| **401 Unauthorized** | Token missing, invalid, revoked, or expired |
 | **403 Forbidden** | Token valid but you lack permission for this resource |
 
-When you receive a 401, refresh your token (or re-run `yertle auth login`) and retry.
+When you receive a 401, verify the token hasn't been revoked in the settings page. Generate a new PAT if needed.
 
 ## Permissions and roles
 
@@ -61,3 +77,7 @@ Authentication identifies *who you are*. Authorization is enforced per organizat
 | **owner** | ✓ | ✓ | ✓ | ✓ |
 
 See [Concepts](/concepts) for more on roles and the organization model.
+
+## Deprecated: `/auth/signin` and `/auth/signup`
+
+These endpoints are still exposed for legacy local-dev use but are **not recommended** for API consumers. They accept username + password and return short-lived JWTs — a pattern that requires storing passwords in scripts, doesn't support MFA well, and doesn't work at all for SSO users. The generated [`yertle-client`](https://pypi.org/project/yertle-client/) marks the corresponding functions with `@deprecated`. Use a PAT instead.
