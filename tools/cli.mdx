@@ -3,69 +3,84 @@ title: Yertle CLI
 description: "A command-line client for the Yertle API."
 ---
 
-The Yertle CLI is an open-source Go command-line client for exploring and scripting Yertle workspaces. It's the easiest way to authenticate and the fastest way to inspect your data from the terminal.
+The Yertle CLI is an open-source Python command-line client for exploring and scripting Yertle workspaces.
 
-**Repo:** [model-context/yertle-cli](https://github.com/model-context/yertle-cli)
+**Repo:** [model-context/yertle-python](https://github.com/model-context/yertle-python) · **Package:** [`yertle` on PyPI](https://pypi.org/project/yertle/)
 
 ## Installation
 
+The CLI ships in the `yertle` package on PyPI. Install it as a tool with
+[`uv`](https://docs.astral.sh/uv/):
+
 ```bash
-brew tap model-context/yertle
-brew install yertle
+uv tool install "yertle[sre,mcp]"
 ```
 
-## Common commands
+That gives you three commands: `yertle`, `yertle-sre`, and `yertle-mcp`. For
+the CLI alone, use `uv tool install "yertle[cli]"`. `pipx` works the same way.
+
+Verify:
 
 ```bash
-# Authenticate
-yertle auth login
+yertle version
+```
 
-# Show current config and authentication state
-yertle config
+## Commands
+
+```bash
+# Save credentials to ~/.yertle/config.json
+yertle login --api-url https://api.yertle.com
+
+# Show which API URL and token are in effect, and where each came from
 yertle auth status
 
-# List organizations
+# List the organizations you belong to
 yertle orgs
 
-# List nodes in the active org
-yertle nodes
+# Print the installed version
+yertle version
+```
 
-# Inspect one node
-yertle nodes <node-id>
+`yertle auth status` is the first thing to run when something behaves
+unexpectedly — it reports the effective API URL and a masked token alongside
+the source each was resolved from, without making a request:
 
-# Render the containment hierarchy
-yertle tree
-
-# Render an ASCII canvas of a node and its children
-yertle canvas <node-id>
-
-# Natural-language search: rank nodes most likely to match a query
-yertle rag "api gateway in the webapp"
-
-# Same search, plus parents/children/connections of the matches
-yertle rag "checkout payment" --expand standard
+```
+  API URL  https://api.yertle.com    (from $YERTLE_API_URL)
+  Token    yrt_a1b2…f9e0             (from ~/.yertle/config.json)
 ```
 
 ## Output formats
 
-Most commands support `--format table`, `--format json`, or `--format csv`:
+`yertle orgs` supports `--format table` (default) or `--format json`:
 
 ```bash
 yertle orgs --format json
-yertle nodes --format csv
 ```
 
 ## Configuration
 
-The CLI stores config at `~/.yertle/config.json`. You can override the API URL or org scope with environment variables or flags:
+Credentials resolve per key, so the two settings can come from different
+places:
+
+| Setting | Resolution order |
+|---|---|
+| Token | `$YERTLE_TOKEN` → `~/.yertle/config.json` → error |
+| API URL | `$YERTLE_API_URL` → `~/.yertle/config.json` → `https://api.yertle.com` |
 
 ```bash
-export YERTLE_API_URL=https://api.yertle.com
-export YERTLE_ORG=<org-id>
+export YERTLE_TOKEN="yrt_..."
+export YERTLE_API_URL="https://api.yertle.com"
 ```
+
+Environment variables take precedence over the config file, which makes them
+the right way to point at a different backend for a single command without
+disturbing saved credentials. `yertle login` writes the config file with
+owner-only permissions (`0600`) and merges into any existing contents rather
+than replacing them.
 
 ## Contributing
 
-The CLI is open source and welcomes contributions. The API reference on this docs site is the source of truth for endpoint signatures and request/response shapes — use it when adding new commands.
+The CLI is open source and welcomes contributions — see [model-context/yertle-python](https://github.com/model-context/yertle-python). The API reference on this docs site is the source of truth for endpoint signatures and request/response shapes — use it when adding new commands.
 
 See [contributing.md](https://github.com/model-context/yertle-cli/blob/main/CONTRIBUTING.md) in the CLI repo for details.
