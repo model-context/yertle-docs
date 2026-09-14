@@ -27,9 +27,7 @@
       {
         "group": "Tools",
         "pages": [
-          "tools/cli",
-          "tools/mcp",
-          "tools/sre"
+          "tools/cli"
         ]
       },
       {

@@ -13,17 +13,43 @@ The CLI ships in the `yertle` package on PyPI. Install it as a tool with
 [`uv`](https://docs.astral.sh/uv/):
 
 ```bash
-uv tool install "yertle[sre,mcp]"
+uv tool install yertle
 ```
 
-That gives you three commands: `yertle`, `yertle-sre`, and `yertle-mcp`. For
-the CLI alone, use `uv tool install "yertle[cli]"`. `pipx` works the same way.
+`pipx install yertle` works the same way.
 
 Verify:
 
 ```bash
 yertle version
 ```
+
+<Note>
+  A tool install gives you the **command**, not the library. `uv tool` puts the
+  package in an isolated environment and links only the entry points onto your
+  PATH, so `import yertle` in a script will not find it. To use the
+  [Python SDK](https://github.com/model-context/yertle-python), install into
+  the project that imports it — `uv add yertle` — which gives you both
+  `import yertle` and the CLI via `uv run yertle`.
+</Note>
+
+<Note>
+  Python entry points are not conditional on extras, so the install also puts
+  a `yertle-sre` command on your PATH. It belongs to an optional agent that is
+  not documented yet; running it just tells you which extra it would need.
+  Ignore it.
+</Note>
+
+To upgrade later:
+
+```bash
+uv tool upgrade yertle
+```
+
+That works as long as you installed without pinning a version. Pinning
+(`uv tool install "yertle==0.3.0"`) records the exact version as the
+requirement, so later upgrades have nothing to move to — reinstall with
+`uv tool install --force yertle` to unpin.
 
 ## Getting started
 
