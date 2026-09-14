@@ -16,8 +16,7 @@ The CLI ships in the `yertle` package on PyPI. Install it as a tool with
 uv tool install yertle
 ```
 
-`pipx install yertle` works the same way. The optional `yertle[sre]` extra adds
-the [SRE agent](/tools/sre); the CLI does not need it.
+`pipx install yertle` works the same way.
 
 Verify:
 
@@ -35,10 +34,10 @@ yertle version
 </Note>
 
 <Note>
-  Python entry points are not conditional on extras, so a plain
-  `uv tool install yertle` still puts `yertle-sre` on your PATH. Running it
-  tells you which extra it needs rather than failing obscurely. Install the
-  extras you want to **use**, not the ones you want to see.
+  Python entry points are not conditional on extras, so the install also puts
+  a `yertle-sre` command on your PATH. It belongs to an optional agent that is
+  not documented yet; running it just tells you which extra it would need.
+  Ignore it.
 </Note>
 
 To upgrade later:
