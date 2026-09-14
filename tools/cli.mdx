@@ -26,6 +26,15 @@ yertle version
 ```
 
 <Note>
+  A tool install gives you the **command**, not the library. `uv tool` puts the
+  package in an isolated environment and links only the entry points onto your
+  PATH, so `import yertle` in a script will not find it. To use the
+  [Python SDK](https://github.com/model-context/yertle-python), install into
+  the project that imports it — `uv add yertle` — which gives you both
+  `import yertle` and the CLI via `uv run yertle`.
+</Note>
+
+<Note>
   Python entry points are not conditional on extras, so a plain
   `uv tool install yertle` still puts `yertle-sre` on your PATH. Running it
   tells you which extra it needs rather than failing obscurely. Install the
