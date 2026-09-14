@@ -5,7 +5,7 @@ description: "Connect AI agents to Yertle via the Model Context Protocol."
 
 The Yertle MCP server exposes Yertle's API as a [Model Context Protocol](https://modelcontextprotocol.io) server, allowing AI agents (like Claude) to read and modify your Yertle workspace as part of their reasoning loop.
 
-**Repo:** [model-context/yertle-mcp](https://github.com/model-context/yertle-mcp)
+**Repo:** [model-context/yertle-python](https://github.com/model-context/yertle-python) · **Package:** [`yertle[mcp]` on PyPI](https://pypi.org/project/yertle/)
 
 ## What is MCP?
 
@@ -23,7 +23,38 @@ With the Yertle MCP server connected to a compatible client, an agent can:
 
 ## Setup
 
-See the [yertle-mcp README](https://github.com/model-context/yertle-mcp) for setup instructions, including how to wire it into Claude Desktop, Cursor, or other MCP-compatible clients.
+You do not install the MCP server. MCP hosts launch it themselves, so point
+your host at [`uvx`](https://docs.astral.sh/uv/guides/tools/), which resolves
+and runs it on demand:
+
+```json
+{
+  "mcpServers": {
+    "yertle": {
+      "command": "uvx",
+      "args": ["--from", "yertle[mcp]", "yertle-mcp"],
+      "env": {
+        "YERTLE_TOKEN": "yrt_...",
+        "YERTLE_API_URL": "https://api.yertle.com"
+      }
+    }
+  }
+}
+```
+
+That block goes in your host's MCP configuration — `claude_desktop_config.json`
+for Claude Desktop, `.mcp.json` for Claude Code, or the equivalent for Cursor.
+
+`YERTLE_TOKEN` is a personal access token, minted in the web app under
+Settings — the same token the [CLI](/tools/cli) uses. `YERTLE_API_URL` may be
+omitted; it defaults to production.
+
+<Note>
+  There is no `uv tool install "yertle[mcp]"` step, and you do not want one.
+  Entry points on your PATH are for commands *you* run; the MCP server is
+  launched by your host. `uvx` keeps it off your PATH and resolves the right
+  version each time.
+</Note>
 
 ## Contributing
 
