@@ -16,14 +16,33 @@ The CLI ships in the `yertle` package on PyPI. Install it as a tool with
 uv tool install "yertle[sre,mcp]"
 ```
 
-That gives you three commands: `yertle`, `yertle-sre`, and `yertle-mcp`. For
-the CLI alone, use `uv tool install "yertle[cli]"`. `pipx` works the same way.
+That gives you three commands: `yertle`, `yertle-sre`, and `yertle-mcp`.
+`pipx` works the same way.
 
 Verify:
 
 ```bash
 yertle version
 ```
+
+<Note>
+  All three commands land on your PATH whichever extras you pick — Python
+  entry points are not conditional on extras. Installing a subset like
+  `yertle[cli]` still creates `yertle-sre` and `yertle-mcp`; running one tells
+  you which extra it needs rather than failing obscurely. Install the extras
+  you want to **use**, not the ones you want to see.
+</Note>
+
+To upgrade later:
+
+```bash
+uv tool upgrade yertle
+```
+
+That works as long as you installed without pinning a version. Pinning
+(`uv tool install "yertle[sre,mcp]==0.3.0"`) records the exact version as the
+requirement, so later upgrades have nothing to move to — reinstall with
+`uv tool install --force "yertle[sre,mcp]"` to unpin.
 
 ## Getting started
 
