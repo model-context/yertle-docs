@@ -25,37 +25,103 @@ Verify:
 yertle version
 ```
 
-## Commands
+## Getting started
 
 ```bash
-# Save credentials to ~/.yertle/config.json
-yertle login --api-url https://api.yertle.com
+# Save a personal access token to ~/.yertle/config.json
+yertle login
 
-# Show which API URL and token are in effect, and where each came from
+# Confirm which backend and token are in effect
 yertle auth status
 
-# List the organizations you belong to
-yertle orgs
+# Get oriented
+yertle about
+```
 
-# Print the installed version
-yertle version
+`yertle login` defaults to production. Pass `--api-url` to point at a different
+backend and persist that choice, or set `$YERTLE_API_URL` for a single command.
+
+## Commands
+
+Commands are noun-then-verb, like `gh` and the AWS CLI. A bare noun prints its
+subcommands rather than running a default action.
+
+### Organizations
+
+```bash
+yertle orgs list              # organizations you belong to
+yertle orgs show <org-id>     # one organization in detail
+yertle orgs use <org-id>      # set a default org — or `all` to undo
+```
+
+### Nodes
+
+```bash
+yertle nodes list             # every node, with relationship counts
+yertle nodes tree             # the containment hierarchy
+yertle nodes show <node-id>   # tags, parents, children, connections
+yertle nodes search "<query>" # rank nodes by meaning, not by name
+```
+
+`nodes search` is the fastest way from a description to a node. Add
+`--expand standard` to pull in the surrounding nodes and connections in the
+same call:
+
+```bash
+yertle nodes search "how do users reach the app" --expand standard
+```
+
+It also takes `--top-k`, `--tag key=value` (repeatable), `--scope-root`,
+`--dir-prefix`, and `--include-text`.
+
+### Authentication and diagnostics
+
+```bash
+yertle auth status            # effective API URL, token, and org
+yertle version                # installed version
+yertle about                  # data model and common workflows
 ```
 
 `yertle auth status` is the first thing to run when something behaves
-unexpectedly — it reports the effective API URL and a masked token alongside
-the source each was resolved from, without making a request:
+unexpectedly. It reports what is in effect alongside the source each value was
+resolved from, without making a request:
 
 ```
-  API URL  https://api.yertle.com    (from $YERTLE_API_URL)
-  Token    yrt_a1b2…f9e0             (from ~/.yertle/config.json)
+  API URL  https://api.yertle.com                (from $YERTLE_API_URL)
+  Token    yrt_a1b2…f9e0                         (from ~/.yertle/config.json)
+  Org      2c440b7a-d5bd-4f0d-9264-8da3195497af  (from ~/.yertle/config.json)
 ```
+
+It exits non-zero when no token resolves, so it works as a precondition check
+in scripts.
+
+## Choosing an organization
+
+Most commands act on one organization, resolved in this order:
+
+| Priority | Source |
+|---|---|
+| 1 | `--org <id>` flag |
+| 2 | `$YERTLE_ORG` |
+| 3 | `yertle orgs use <id>` (saved in `~/.yertle/config.json`) |
+| 4 | Every organization you belong to |
+
+```bash
+yertle orgs use 2c440b7a-d5bd-4f0d-9264-8da3195497af
+yertle nodes list    # no --org needed from here on
+```
+
+Commands that can span organizations — `nodes list` and `nodes tree` — do so by
+default. Commands that cannot address more than one — `nodes show` and
+`nodes search` — ask you to pick one.
 
 ## Output formats
 
-`yertle orgs` supports `--format table` (default) or `--format json`:
+Every data command takes `--format table` (default) or `--format json`. Errors
+go to stderr and exit non-zero, so piping is safe:
 
 ```bash
-yertle orgs --format json
+yertle nodes search "payment path" --format json | jq '.matches[].title'
 ```
 
 ## Configuration
@@ -79,8 +145,16 @@ disturbing saved credentials. `yertle login` writes the config file with
 owner-only permissions (`0600`) and merges into any existing contents rather
 than replacing them.
 
+<Note>
+  **Upgrading from 0.2.0 or earlier:** `yertle orgs` is now `yertle orgs list`.
+  Every command is noun-then-verb, so a bare `yertle orgs` prints its
+  subcommands instead of listing. `yertle login` no longer requires
+  `--api-url`; it defaults to production.
+</Note>
+
 ## Contributing
 
-The CLI is open source and welcomes contributions — see [model-context/yertle-python](https://github.com/model-context/yertle-python). The API reference on this docs site is the source of truth for endpoint signatures and request/response shapes — use it when adding new commands.
-
-See [contributing.md](https://github.com/model-context/yertle-cli/blob/main/CONTRIBUTING.md) in the CLI repo for details.
+The CLI is open source and welcomes contributions — see
+[model-context/yertle-python](https://github.com/model-context/yertle-python).
+The API reference on this docs site is the source of truth for endpoint
+signatures and request/response shapes — use it when adding new commands.
