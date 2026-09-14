@@ -13,14 +13,11 @@ The CLI ships in the `yertle` package on PyPI. Install it as a tool with
 [`uv`](https://docs.astral.sh/uv/):
 
 ```bash
-uv tool install "yertle[sre]"
+uv tool install yertle
 ```
 
-That gives you `yertle` and `yertle-sre`. `pipx` works the same way.
-
-The MCP server is deliberately not part of a tool install — MCP hosts launch
-it themselves via `uvx`, so it never needs to sit on your PATH. See
-[Yertle MCP Server](/tools/mcp) for the client config.
+`pipx install yertle` works the same way. The optional `yertle[sre]` extra adds
+the [SRE agent](/tools/sre); the CLI does not need it.
 
 Verify:
 
@@ -29,11 +26,10 @@ yertle version
 ```
 
 <Note>
-  Every command lands on your PATH whichever extras you pick — Python entry
-  points are not conditional on extras. So `yertle[sre]` still creates a
-  `yertle-mcp` you will not use. Running it tells you which extra it needs
-  rather than failing obscurely. Install the extras you want to **use**, not
-  the ones you want to see.
+  Python entry points are not conditional on extras, so a plain
+  `uv tool install yertle` still puts `yertle-sre` on your PATH. Running it
+  tells you which extra it needs rather than failing obscurely. Install the
+  extras you want to **use**, not the ones you want to see.
 </Note>
 
 To upgrade later:
@@ -43,9 +39,9 @@ uv tool upgrade yertle
 ```
 
 That works as long as you installed without pinning a version. Pinning
-(`uv tool install "yertle[sre]==0.3.0"`) records the exact version as the
+(`uv tool install "yertle==0.3.0"`) records the exact version as the
 requirement, so later upgrades have nothing to move to — reinstall with
-`uv tool install --force "yertle[sre]"` to unpin.
+`uv tool install --force yertle` to unpin.
 
 ## Getting started
 
