@@ -47,15 +47,9 @@ yertle login
 
 The CLI prompts you to generate a PAT in the web UI, pastes it back, and stores it at `~/.yertle/config.json`. Subsequent `yertle` commands read from that file automatically.
 
-### Option 3: Web app (browser session)
-
-The [yertle.com](https://yertle.com) web app authenticates users via AWS Cognito with a hosted sign-in page. This flow issues short-lived Cognito JWTs used only by the browser session — it is not the recommended path for API consumers or scripts. If you're building a browser-based client, use [AWS Amplify](https://docs.amplify.aws/) against the same Cognito user pool.
-
 ## Token lifetime
 
 **Personal Access Tokens** don't expire unless you set an expiration when creating them. Rotate by creating a new token, updating your scripts/CI, then revoking the old one from the settings page — other tokens are unaffected.
-
-**Cognito JWTs** (browser-session tokens) expire after one hour and are automatically refreshed by the Amplify session in the browser. Not applicable to API consumers.
 
 ## Errors
 
