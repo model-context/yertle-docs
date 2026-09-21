@@ -77,7 +77,3 @@ Authentication identifies *who you are*. Authorization is enforced per organizat
 | **owner** | ✓ | ✓ | ✓ | ✓ |
 
 See [Concepts](/concepts) for more on roles and the organization model.
-
-## Deprecated: `/auth/signin` and `/auth/signup`
-
-These endpoints are still exposed for legacy local-dev use but are **not recommended** for API consumers. They accept username + password and return short-lived JWTs — a pattern that requires storing passwords in scripts, doesn't support MFA well, and doesn't work at all for SSO users. The generated [`yertle-client`](https://pypi.org/project/yertle-client/) marks the corresponding functions with `@deprecated`. Use a PAT instead.
