@@ -60,7 +60,7 @@ Yertle uses **full-state push** rather than mutation operations. When you update
 
 This is unusual but powerful:
 
-- **No race conditions** — your push is the truth
+- **Safe concurrent edits** — a push based on an out-of-date head is rejected instead of silently overwriting someone else's work
 - **Atomic updates** — multiple changes commit together
 - **Simple client logic** — clients don't need to track individual mutations
 
@@ -70,17 +70,51 @@ Content-Type: application/json
 
 {
   "message": "Add database service",
+  "expected_head_commit": "<current head from GET .../tree/{branch}/head>",
   "state": {
-    "node": { "title": "...", "description": "..." },
-    "tags": { "env": "prod" },
-    "child_nodes": [...],
-    "connections": [...],
-    "visual_properties": [...]
+    "node": { "title": "Checkout", "description": "Order and payment flow" },
+    "tags": { "env": { "value": "prod" } },
+    "directories": ["/services"],
+    "visual_properties": [
+      {
+        "child_node_id": "<api node id>",
+        "position_x": 100,
+        "position_y": 100,
+        "width": 100,
+        "height": 100,
+        "z_index": 1
+      },
+      {
+        "child_node_id": "<database node id>",
+        "position_x": 300,
+        "position_y": 100,
+        "width": 100,
+        "height": 100,
+        "z_index": 2
+      }
+    ],
+    "connections": [
+      {
+        "id": "temp-api-to-db",
+        "from_child_id": "<api node id>",
+        "to_child_id": "<database node id>",
+        "from_edge": "right",
+        "to_edge": "left",
+        "label": "queries"
+      }
+    ]
   }
 }
 ```
 
-The server creates a new commit, updates the branch pointer, and returns the new commit ID.
+A few rules the example follows:
+
+- **`state` is the complete desired state.** Any section you leave out is empty in the new commit — omit `directories` and the node loses its directories; send `"visual_properties": []` and it has no children.
+- **`expected_head_commit`** is the commit your state is based on (`"none"` for a branch with no commits yet). If the branch has moved since, the push is rejected with `409`; fetch the new head and try again.
+- **Children are listed in `visual_properties`**, one entry per child. Each `child_node_id` must be an existing node — create it first with `POST /orgs/{org_id}/nodes`.
+- **Connections** join two children of this node. Give a new connection an ID starting with `temp-`; the response's `connection_id_mappings` tells you the permanent ID it was assigned. Edges are `top`, `right`, `bottom`, `left` or `center` (the default).
+
+The server creates a new commit, updates the branch pointer, and returns the new `commit_id`.
 
 ## Tags, directories, connections
 
@@ -88,7 +122,7 @@ These are the entities that live inside a node:
 
 - **Tags** — Key-value metadata (e.g., `env=prod`, `team=backend`). Useful for filtering and search.
 - **Directories** — Folder paths used to organize nodes within an org's tree view (e.g., `/services/api`).
-- **Connections** — Directed edges between two child nodes inside a parent. Each connection has a label, type, and visual styling.
+- **Connections** — Directed edges between two child nodes inside a parent. Each connection can carry an optional label and type.
 - **Visual properties** — Position, size, rotation, transparency for rendering child nodes on the canvas.
 
 ## Pull requests

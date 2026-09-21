@@ -6,7 +6,7 @@ description: "REST endpoints for the Yertle API."
 The Yertle API is a REST API that follows standard conventions:
 
 - **Base URL** (production): `https://api.yertle.com`
-- **Authentication**: Personal Access Tokens (see [Authentication](/authentication)). Cognito-issued JWTs are also accepted for browser sessions, but PATs are the recommended path for API consumers.
+- **Authentication**: Personal Access Tokens (see [Authentication](/authentication)).
 - **Content type**: `application/json`
 
 ## How to read this reference
@@ -25,7 +25,6 @@ Endpoints are organized by resource:
 
 | Group | Description |
 |-------|-------------|
-| **Authentication** | Legacy sign-in / sign-up (both deprecated; API consumers should use a PAT — see [Authentication](/authentication)) |
 | **Organizations** | List, create, inspect orgs; manage members and invites |
 | **Nodes** | Create, read, update, delete nodes; push state |
 | **Branches** | Create branches, switch between branches, list branch heads |

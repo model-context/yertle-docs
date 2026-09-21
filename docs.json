@@ -37,13 +37,6 @@
         ]
       },
       {
-        "group": "Authentication",
-        "pages": [
-          "api-reference/authentication/sign-in",
-          "api-reference/authentication/sign-up"
-        ]
-      },
-      {
         "group": "Organizations",
         "pages": [
           "api-reference/organizations/list-organizations",
