@@ -1470,7 +1470,7 @@
           "nodes"
         ],
         "summary": "Push Node State",
-        "description": "Git-like full-state push operation.\n\nThis endpoint implements the declarative API where clients send the complete\ndesired state, and the server handles diffing and object reuse automatically.\n\nSimilar to `git push`, the client describes the end state they want, and the\nserver figures out what changed and creates an optimal commit.\n\nFeatures:\n- Automatic object reuse for unchanged content\n- Complete state snapshots in each commit\n- Branch support for collaborative workflows\n- Validation of state schema",
+        "description": "Git-like full-state push operation.\n\nThis endpoint implements the declarative API where clients send the complete\ndesired state, and the server diffs it against the branch head.\n\nSimilar to `git push`, the client describes the end state they want, and the\nserver figures out what changed and commits it (or nothing, if nothing did).\n\nFeatures:\n- No commit when the pushed state matches the branch head: the response\n  has `unchanged: true` and `commit_id` is the current head\n- Complete state snapshots in each commit\n- Branch support for collaborative workflows\n- Validation of state schema",
         "operationId": "push_node_state_orgs__org_id__nodes__node_id__tree__branch__push_put",
         "parameters": [
           {
@@ -1598,14 +1598,14 @@
         }
       }
     },
-    "/orgs/{org_id}/nodes/{node_id}/tree/{branch}/complete": {
+    "/orgs/{org_id}/nodes/{node_id}/tree/{branch}": {
       "get": {
         "tags": [
           "nodes"
         ],
-        "summary": "Get Complete State By Branch",
-        "description": "Get complete state for a node at a specific branch for canvas rendering.",
-        "operationId": "get_complete_state_by_branch_orgs__org_id__nodes__node_id__tree__branch__complete_get",
+        "summary": "Get Tree Document",
+        "description": "A node's write document: valid input to `PUT .../tree/{branch}/push`.\n\nRead, edit `state`, set `message`, and push the whole document back.\nPushing it back unchanged is a no-op (`unchanged: true`).\n\n- `state` is exactly what push stores. Push replaces all five sections,\n  so always send the document you read, not a hand-written subset.\n- Fields starting with `_` (`_title`, `_description`,\n  `_snapshot_commit_id`, `_from_title`, `_to_title`) are read-only\n  annotations; push ignores them.\n- `status` is read-only context (parents, ingress/egress, counts).\n- `expected_head_commit` is the branch head this document was read at; if\n  the branch has moved since, push returns 409.",
+        "operationId": "get_tree_document_orgs__org_id__nodes__node_id__tree__branch__get",
         "parameters": [
           {
             "name": "org_id",
@@ -1642,7 +1642,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/NodeCompleteStateResponse"
+                  "$ref": "#/components/schemas/NodeTreeDocument"
                 }
               }
             }
@@ -2153,14 +2153,14 @@
         }
       }
     },
-    "/orgs/{org_id}/nodes/{node_id}/tree/{branch}/commits/{commit_id}/complete": {
+    "/orgs/{org_id}/nodes/{node_id}/tree/{branch}/commits/{commit_id}/tree": {
       "get": {
         "tags": [
           "node-history"
         ],
-        "summary": "Get Complete State At Commit",
-        "description": "Get complete state for a node at a specific commit for canvas rendering.\n\nThis endpoint reconstructs the exact state as it was at the specified commit,\nsimilar to 'git checkout <commit>'. It's useful for viewing historical states\nor comparing how the node looked at different points in time.",
-        "operationId": "get_complete_state_at_commit_orgs__org_id__nodes__node_id__tree__branch__commits__commit_id__complete_get",
+        "summary": "Get Tree Document At Commit",
+        "description": "A node's tree document as it was at a commit. Read-only.\n\nThe same document `GET .../tree/{branch}` returned while this commit was\nthe head, without `expected_head_commit`: push rejects it, so history\ncan't be pushed back by accident. `status.commit_id` names the commit.\n`status` (parents, ingress/egress) and the `_title` annotations are\ncurrent, not historical. `{branch}` is not used: a commit belongs to the\nnode, not to one branch.",
+        "operationId": "get_tree_document_at_commit_orgs__org_id__nodes__node_id__tree__branch__commits__commit_id__tree_get",
         "parameters": [
           {
             "name": "org_id",
@@ -2206,7 +2206,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/NodeCompleteStateResponse"
+                  "$ref": "#/components/schemas/NodeTreeDocument"
                 }
               }
             }
@@ -2332,6 +2332,7 @@
             "required": true,
             "schema": {
               "type": "string",
+              "format": "uuid",
               "title": "Org Id"
             }
           },
@@ -2392,6 +2393,7 @@
             "required": true,
             "schema": {
               "type": "string",
+              "format": "uuid",
               "title": "Org Id"
             }
           },
@@ -2444,6 +2446,7 @@
             "required": true,
             "schema": {
               "type": "string",
+              "format": "uuid",
               "title": "Org Id"
             }
           },
@@ -2514,6 +2517,7 @@
             "required": true,
             "schema": {
               "type": "string",
+              "format": "uuid",
               "title": "Org Id"
             }
           },
@@ -2585,6 +2589,7 @@
             "required": true,
             "schema": {
               "type": "string",
+              "format": "uuid",
               "title": "Org Id"
             }
           },
@@ -2645,6 +2650,7 @@
             "required": true,
             "schema": {
               "type": "string",
+              "format": "uuid",
               "title": "Org Id"
             }
           },
@@ -2742,6 +2748,7 @@
             "required": true,
             "schema": {
               "type": "string",
+              "format": "uuid",
               "title": "Org Id"
             }
           },
@@ -2803,6 +2810,7 @@
             "required": true,
             "schema": {
               "type": "string",
+              "format": "uuid",
               "title": "Org Id"
             }
           },
@@ -2864,6 +2872,7 @@
             "required": true,
             "schema": {
               "type": "string",
+              "format": "uuid",
               "title": "Org Id"
             }
           },
@@ -3268,14 +3277,14 @@
         }
       }
     },
-    "/public/orgs/{org_id}/nodes/{node_id}/tree/{branch}/complete": {
+    "/public/orgs/{org_id}/nodes/{node_id}/tree/{branch}": {
       "get": {
         "tags": [
           "public"
         ],
-        "summary": "Get Public Complete State",
-        "description": "Anonymous read of complete node state at the branch HEAD.",
-        "operationId": "get_public_complete_state_public_orgs__org_id__nodes__node_id__tree__branch__complete_get",
+        "summary": "Get Public Tree Document",
+        "description": "Anonymous read of a node's tree document at the branch head.\n\nThe same document as the authed `GET .../tree/{branch}`. Anonymous\ncallers cannot push, so here it is read-only in practice.",
+        "operationId": "get_public_tree_document_public_orgs__org_id__nodes__node_id__tree__branch__get",
         "parameters": [
           {
             "name": "org_id",
@@ -3312,7 +3321,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/NodeCompleteStateResponse"
+                  "$ref": "#/components/schemas/NodeTreeDocument"
                 }
               }
             }
@@ -3330,14 +3339,14 @@
         }
       }
     },
-    "/public/orgs/{org_id}/nodes/{node_id}/tree/{branch}/commits/{commit_id}/complete": {
+    "/public/orgs/{org_id}/nodes/{node_id}/tree/{branch}/commits/{commit_id}/tree": {
       "get": {
         "tags": [
           "public"
         ],
-        "summary": "Get Public Complete State At Commit",
-        "description": "Anonymous read of node state at a specific commit (historical).",
-        "operationId": "get_public_complete_state_at_commit_public_orgs__org_id__nodes__node_id__tree__branch__commits__commit_id__complete_get",
+        "summary": "Get Public Tree Document At Commit",
+        "description": "Anonymous read of a node's tree document at a commit. Read-only.\n\nThe same document as the authed `.../commits/{commit_id}/tree`.",
+        "operationId": "get_public_tree_document_at_commit_public_orgs__org_id__nodes__node_id__tree__branch__commits__commit_id__tree_get",
         "parameters": [
           {
             "name": "org_id",
@@ -3383,7 +3392,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/NodeCompleteStateResponse"
+                  "$ref": "#/components/schemas/NodeTreeDocument"
                 }
               }
             }
@@ -4324,6 +4333,100 @@
         ],
         "title": "CommitResponse",
         "description": "Response model for commit data."
+      },
+      "Connection": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Connection ID"
+          },
+          "from_child_id": {
+            "type": "string",
+            "title": "From Child Id",
+            "description": "Source child node ID"
+          },
+          "to_child_id": {
+            "type": "string",
+            "title": "To Child Id",
+            "description": "Target child node ID"
+          },
+          "from_edge": {
+            "type": "string",
+            "title": "From Edge",
+            "description": "Edge of the source child",
+            "default": "center"
+          },
+          "to_edge": {
+            "type": "string",
+            "title": "To Edge",
+            "description": "Edge of the target child",
+            "default": "center"
+          },
+          "style": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "ConnectionStyle",
+            "description": "Visual style"
+          },
+          "label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Label",
+            "description": "Connection label"
+          },
+          "type": {
+            "type": "string",
+            "title": "Type",
+            "description": "Connection type",
+            "default": "default"
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "ConnectionMetadata",
+            "description": "Free-form connection metadata"
+          },
+          "_from_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "From Title",
+            "description": "Read-only: the source child's title. Ignored by push."
+          },
+          "_to_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "To Title",
+            "description": "Read-only: the target child's title. Ignored by push."
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "id",
+          "from_child_id",
+          "to_child_id"
+        ],
+        "title": "Connection",
+        "description": "A connection between two children on this node's canvas.\n\nOn push, an `id` starting with `temp-` creates a new connection; the real\nID is returned in `connection_id_mappings`."
       },
       "ContactMessageResponse": {
         "properties": {
@@ -5440,108 +5543,68 @@
         "description": "Minimal response carrying a human-readable message."
       },
       "NodeCanvasStateResponse": {
-        "properties": {},
-        "additionalProperties": true,
-        "type": "object",
-        "title": "NodeCanvasStateResponse",
-        "description": "Flat canvas state \u2014 dictionary keyed by node ID.\n\nEach value is a push-compatible state object for that node. The schema is\ninherently dynamic because keys are UUIDs, so this response type is a\npassthrough JSON object."
-      },
-      "NodeCompleteStateResponse": {
         "properties": {
-          "node": {
-            "additionalProperties": true,
+          "node_id": {
+            "type": "string",
+            "title": "Node Id",
+            "description": "The canvas's own node (the root)"
+          },
+          "nodes": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/NodeTreeDocument"
+            },
             "type": "object",
-            "title": "Node",
-            "description": "Node metadata (id, title, description, org_id, timestamps)"
+            "title": "Nodes",
+            "description": "The root and each child (and, with include_related=full, each parent and ingress/egress counterparty), keyed by node ID"
           },
-          "tags": {
-            "additionalProperties": true,
-            "type": "object",
-            "title": "NodeCompleteStateResponseTags",
-            "description": "Node tags"
+          "org_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Org Name",
+            "description": "The org's name; public routes only"
+          }
+        },
+        "type": "object",
+        "required": [
+          "node_id",
+          "nodes"
+        ],
+        "title": "NodeCanvasStateResponse",
+        "description": "GET .../canvas: a node plus its children, each as a tree document.\n\nEvery entry in `nodes` is exactly what the tree routes return for that\nnode: edit its `state` and push it back. Entries read at a commit or a\nsnapshot pin have no `expected_head_commit`, so they are read-only.\nSee TREE_ROUTE_DESIGN.md, \"Decided (2026-10-16)\"."
+      },
+      "NodeFields": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title",
+            "description": "Node title"
           },
-          "directories": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array",
-            "title": "Directories",
-            "description": "Directory paths the node belongs to"
-          },
-          "documentation": {
-            "items": {},
-            "type": "array",
-            "title": "Documentation",
-            "description": "Attached documentation entries"
-          },
-          "child_nodes": {
-            "items": {
-              "additionalProperties": true,
-              "type": "object"
-            },
-            "type": "array",
-            "title": "Child Nodes",
-            "description": "Child node summaries"
-          },
-          "visual_properties": {
-            "items": {
-              "additionalProperties": true,
-              "type": "object"
-            },
-            "type": "array",
-            "title": "Visual Properties",
-            "description": "Visual properties for child nodes"
-          },
-          "connections": {
-            "items": {
-              "additionalProperties": true,
-              "type": "object"
-            },
-            "type": "array",
-            "title": "Connections",
-            "description": "Connections between child nodes"
-          },
-          "parent_nodes": {
-            "items": {
-              "additionalProperties": true,
-              "type": "object"
-            },
-            "type": "array",
-            "title": "Parent Nodes",
-            "description": "Parent nodes that contain this node"
-          },
-          "ingress_connections": {
-            "items": {
-              "additionalProperties": true,
-              "type": "object"
-            },
-            "type": "array",
-            "title": "Ingress Connections",
-            "description": "Incoming connections from sibling contexts"
-          },
-          "egress_connections": {
-            "items": {
-              "additionalProperties": true,
-              "type": "object"
-            },
-            "type": "array",
-            "title": "Egress Connections",
-            "description": "Outgoing connections to sibling contexts"
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "description": "Node description",
+            "default": ""
           },
           "metadata": {
             "additionalProperties": true,
             "type": "object",
-            "title": "Metadata",
-            "description": "Aggregate counts (child/connection totals)"
+            "title": "NodeFieldsMetadata",
+            "description": "Free-form node metadata"
           }
         },
         "additionalProperties": true,
         "type": "object",
         "required": [
-          "node"
+          "title"
         ],
-        "title": "NodeCompleteStateResponse",
-        "description": "Full state for a node (rendered canvas view).\n\nThe response contains the node's metadata plus all visual + relational data\nneeded by the frontend to render the canvas: child nodes, visual properties,\nconnections, parents, and branch context. Nested shapes are intentionally\nloose because the visual schema is evolving."
+        "title": "NodeFields",
+        "description": "The node's own stored fields."
       },
       "NodeListResponse": {
         "properties": {
@@ -5933,6 +5996,91 @@
         "type": "object",
         "title": "NodeSearchFilters",
         "description": "Request model for unified node search with optional filters."
+      },
+      "NodeState": {
+        "properties": {
+          "node": {
+            "$ref": "#/components/schemas/NodeFields"
+          },
+          "tags": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/TagValue"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "type": "object",
+            "title": "NodeStateTags",
+            "description": "Tag key to value. A bare string is shorthand for {\"value\": ...}."
+          },
+          "directories": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Directories"
+          },
+          "visual_properties": {
+            "items": {
+              "$ref": "#/components/schemas/VisualProperty"
+            },
+            "type": "array",
+            "title": "Visual Properties"
+          },
+          "connections": {
+            "items": {
+              "$ref": "#/components/schemas/Connection"
+            },
+            "type": "array",
+            "title": "Connections"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "node"
+        ],
+        "title": "NodeState",
+        "description": "The five sections push stores. Push replaces all of them: an omitted\nsection is stored as empty."
+      },
+      "NodeTreeDocument": {
+        "properties": {
+          "expected_head_commit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Head Commit",
+            "description": "Branch head this document was read at. Absent when read at a commit: that document is read-only."
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "Commit message; empty until you set one",
+            "default": ""
+          },
+          "state": {
+            "$ref": "#/components/schemas/NodeState"
+          },
+          "status": {
+            "$ref": "#/components/schemas/TreeStatus"
+          }
+        },
+        "type": "object",
+        "required": [
+          "state",
+          "status"
+        ],
+        "title": "NodeTreeDocument",
+        "description": "GET /tree/{branch}. Valid input to PUT /tree/{branch}/push as returned:\nedit `state`, set `message`, send it back. `expected_head_commit` is the\nbranch head this document was read at; a stale one is rejected with 409.\n\nRead at a commit (GET .../commits/{commit_id}/tree) the document is\nread-only: it has no `expected_head_commit`, so push rejects it (422)."
       },
       "NotifyNewSignupResponse": {
         "properties": {
@@ -6397,15 +6545,26 @@
             "description": "Commit message describing the changes"
           },
           "state": {
-            "additionalProperties": true,
-            "type": "object",
-            "title": "State",
-            "description": "Complete desired state of the node"
+            "$ref": "#/components/schemas/NodeState",
+            "description": "Complete desired state of the node. All five sections are replaced: an omitted section is stored as empty. GET .../tree/{branch} returns a document whose `state` can be sent back as is."
           },
           "expected_head_commit": {
             "type": "string",
             "title": "Expected Head Commit",
             "description": "The commit ID the client's state is based on. Push is rejected with 409 if this doesn't match the branch's current head."
+          },
+          "status": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status",
+            "description": "Ignored. Accepted so a GET .../tree/{branch} document, which carries read-only `status`, can be pushed back unchanged."
           }
         },
         "type": "object",
@@ -6502,6 +6661,20 @@
             ],
             "title": "Connection Id Mappings",
             "description": "Mapping from temp connection IDs to real UUIDs"
+          },
+          "unchanged": {
+            "type": "boolean",
+            "title": "Unchanged",
+            "description": "True when the pushed state matched the branch head. No commit was created; commit_id and previous_commit are both the current head.",
+            "default": false
+          },
+          "ignored_keys": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Ignored Keys",
+            "description": "Keys in `state` that push did not store, as paths with list positions collapsed to `[]` and map keys to `*` (e.g. `state.connections[].lable`). `_`-prefixed annotations are never listed. Empty when the request held only fields push stores, as a document from GET .../tree/{branch} does."
           }
         },
         "type": "object",
@@ -7030,6 +7203,34 @@
         "title": "SubgraphNode",
         "description": "A node in the expanded subgraph response."
       },
+      "TagValue": {
+        "properties": {
+          "value": {
+            "type": "string",
+            "title": "Value",
+            "description": "Tag value"
+          },
+          "link": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Link",
+            "description": "Optional URL for the tag"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "value"
+        ],
+        "title": "TagValue",
+        "description": "A tag's value, with an optional link."
+      },
       "TokenListItem": {
         "properties": {
           "id": {
@@ -7173,6 +7374,124 @@
         "title": "TokenResponse",
         "description": "Response model for authentication tokens (mimics Cognito response)."
       },
+      "TreeCounts": {
+        "properties": {
+          "children": {
+            "type": "integer",
+            "title": "Children"
+          },
+          "connections": {
+            "type": "integer",
+            "title": "Connections"
+          },
+          "parents": {
+            "type": "integer",
+            "title": "Parents"
+          },
+          "ingress": {
+            "type": "integer",
+            "title": "Ingress"
+          },
+          "egress": {
+            "type": "integer",
+            "title": "Egress"
+          }
+        },
+        "type": "object",
+        "required": [
+          "children",
+          "connections",
+          "parents",
+          "ingress",
+          "egress"
+        ],
+        "title": "TreeCounts"
+      },
+      "TreeStatus": {
+        "properties": {
+          "node_id": {
+            "type": "string",
+            "title": "Node Id"
+          },
+          "org_id": {
+            "type": "string",
+            "title": "Org Id"
+          },
+          "branch": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Branch",
+            "description": "Branch this document was read from; absent at a commit"
+          },
+          "commit_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Commit Id",
+            "description": "Commit this document was read at"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "parents": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Parents",
+            "description": "Nodes whose canvas contains this node (read from main)"
+          },
+          "ingress": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Ingress",
+            "description": "Connections into this node on its parents' canvases (main)"
+          },
+          "egress": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Egress",
+            "description": "Connections out of this node on its parents' canvases (main)"
+          },
+          "counts": {
+            "$ref": "#/components/schemas/TreeCounts"
+          }
+        },
+        "type": "object",
+        "required": [
+          "node_id",
+          "org_id",
+          "counts"
+        ],
+        "title": "TreeStatus",
+        "description": "Read-only context. Push ignores it."
+      },
       "UpdateOrgSettingsRequest": {
         "properties": {
           "invite_mode": {
@@ -7311,6 +7630,130 @@
           "type"
         ],
         "title": "ValidationError"
+      },
+      "VisualProperty": {
+        "properties": {
+          "child_node_id": {
+            "type": "string",
+            "title": "Child Node Id",
+            "description": "Child node ID"
+          },
+          "position_x": {
+            "type": "number",
+            "title": "Position X",
+            "description": "X position",
+            "default": 0.0
+          },
+          "position_y": {
+            "type": "number",
+            "title": "Position Y",
+            "description": "Y position",
+            "default": 0.0
+          },
+          "z_index": {
+            "type": "integer",
+            "title": "Z Index",
+            "description": "Stacking order",
+            "default": 0
+          },
+          "width": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Width",
+            "description": "Width"
+          },
+          "height": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Height",
+            "description": "Height"
+          },
+          "rotation": {
+            "type": "number",
+            "title": "Rotation",
+            "description": "Rotation in degrees",
+            "default": 0.0
+          },
+          "transparency": {
+            "type": "number",
+            "title": "Transparency",
+            "description": "Opacity, 0.0 to 1.0",
+            "default": 1.0
+          },
+          "show_border": {
+            "type": "boolean",
+            "title": "Show Border",
+            "description": "Draw the child's border",
+            "default": true
+          },
+          "title_position": {
+            "type": "string",
+            "title": "Title Position",
+            "description": "Where the title is drawn",
+            "default": "center"
+          },
+          "show_preview": {
+            "type": "boolean",
+            "title": "Show Preview",
+            "description": "Render the child's canvas inside it",
+            "default": false
+          },
+          "_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title",
+            "description": "Read-only: the child's title. Ignored by push."
+          },
+          "_description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description",
+            "description": "Read-only: the child's description. Ignored by push."
+          },
+          "_snapshot_commit_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Snapshot Commit Id",
+            "description": "Read-only: the child's commit as of this node's last change, used by ?resolve_children=snapshot. Server-owned; ignored by push."
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "child_node_id"
+        ],
+        "title": "VisualProperty",
+        "description": "Where a child node sits on this node's canvas."
       }
     },
     "securitySchemes": {
