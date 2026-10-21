@@ -62,7 +62,7 @@
           "api-reference/nodes/delete-node",
           "api-reference/nodes/push-node-state",
           "api-reference/nodes/get-branch-head-commit",
-          "api-reference/nodes/get-complete-state-by-branch",
+          "api-reference/nodes/get-tree-document",
           "api-reference/nodes/get-canvas-state-by-branch"
         ]
       },
@@ -92,7 +92,7 @@
           "api-reference/node-history/get-node-history",
           "api-reference/node-history/get-commit-details",
           "api-reference/node-history/get-node-diff",
-          "api-reference/node-history/get-complete-state-at-commit",
+          "api-reference/node-history/get-tree-document-at-commit",
           "api-reference/node-history/get-canvas-state-at-commit"
         ]
       },
@@ -120,8 +120,8 @@
         "pages": [
           "api-reference/public/get-public-org-graph",
           "api-reference/public/list-public-org-nodes",
-          "api-reference/public/get-public-complete-state",
-          "api-reference/public/get-public-complete-state-at-commit",
+          "api-reference/public/get-public-tree-document",
+          "api-reference/public/get-public-tree-document-at-commit",
           "api-reference/public/get-public-canvas-state",
           "api-reference/public/get-public-canvas-state-at-commit",
           "api-reference/public/list-public-commits",

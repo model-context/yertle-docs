@@ -46,14 +46,72 @@ You should see a JSON response with your orgs:
 
 ## 4. Read a node
 
-Pick an org ID and a node ID from your workspace, then fetch the complete state:
+Pick an org ID and a node ID from your workspace, then fetch the node's tree document:
 
 ```bash
-curl https://api.yertle.com/orgs/{org_id}/nodes/{node_id}/tree/main/complete \
+curl https://api.yertle.com/orgs/{org_id}/nodes/{node_id}/tree/main \
   -H "Authorization: Bearer $YERTLE_TOKEN"
 ```
 
-This returns the full node with parents, children, connections, tags, directories, and visual properties.
+You get the node exactly as it is stored, plus read-only context (trimmed here to one of two children):
+
+```json
+{
+  "expected_head_commit": "922ee368-...",
+  "message": "",
+  "state": {
+    "node": { "title": "Node AAA", "description": "Parent node that will contain BBB and CCC", "metadata": {} },
+    "tags": { "environment": { "value": "test" } },
+    "directories": ["/test"],
+    "visual_properties": [
+      {
+        "child_node_id": "7508d70f-...",
+        "position_x": 100.0,
+        "position_y": 100.0,
+        "z_index": 1,
+        "width": 200.0,
+        "height": 100.0,
+        "rotation": 0.0,
+        "transparency": 1.0,
+        "show_border": true,
+        "title_position": "top-left",
+        "show_preview": false,
+        "_title": "Node BBB",
+        "_description": "Child node with egress connection to CCC",
+        "_snapshot_commit_id": "ccfcaba9-..."
+      }
+    ],
+    "connections": [
+      {
+        "id": "3f7aba27-...",
+        "from_child_id": "7508d70f-...",
+        "to_child_id": "ab687693-...",
+        "from_edge": "right",
+        "to_edge": "left",
+        "style": {},
+        "label": "connects to",
+        "type": "default",
+        "metadata": {},
+        "_from_title": "Node BBB",
+        "_to_title": "Node CCC"
+      }
+    ]
+  },
+  "status": {
+    "node_id": "ee39e1f1-...",
+    "org_id": "8048e799-...",
+    "branch": "main",
+    "parents": [],
+    "ingress": [],
+    "egress": [],
+    "counts": { "children": 2, "connections": 1, "parents": 0, "ingress": 0, "egress": 0 }
+  }
+}
+```
+
+- **`state`** is what [push](/api-reference/nodes/push-node-state) takes. To change the node, edit `state` and send it back with `expected_head_commit`; if someone pushed in between, you get `409` instead of overwriting their work.
+- **Fields starting with `_`** (a child's `_title`, its `_snapshot_commit_id`) and everything in **`status`** are read-only context. Push ignores them, so you can send the document back without stripping them.
+- **At a commit**, `GET .../tree/{branch}/commits/{commit_id}/tree` returns the same shape without `expected_head_commit`: a historical read, not something to push.
 
 ## Prefer Python?
 
