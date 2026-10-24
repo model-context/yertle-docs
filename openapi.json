@@ -3169,6 +3169,50 @@
         }
       }
     },
+    "/public/orgs/{org_id}": {
+      "get": {
+        "tags": [
+          "public"
+        ],
+        "summary": "Get Public Org",
+        "description": "Anonymous read of a published org's public details.\n\nReturns only the ``PublicOrganizationResponse`` allowlist \u2014 never the\nauthed ``OrganizationResponse``, which carries invite and role data.",
+        "operationId": "get_public_org_public_orgs__org_id__get",
+        "parameters": [
+          {
+            "name": "org_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Org Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicOrganizationResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/public/orgs/{org_id}/graph": {
       "get": {
         "tags": [
@@ -6313,6 +6357,58 @@
         ],
         "title": "PRDetailResponse",
         "description": "Detailed response for a single pull request."
+      },
+      "PublicOrganizationResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Organization ID"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Organization name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description",
+            "description": "Organization description"
+          },
+          "member_count": {
+            "type": "integer",
+            "title": "Member Count",
+            "description": "Number of members"
+          },
+          "node_count": {
+            "type": "integer",
+            "title": "Node Count",
+            "description": "Number of nodes"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At",
+            "description": "Creation timestamp"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "member_count",
+          "node_count",
+          "created_at"
+        ],
+        "title": "PublicOrganizationResponse",
+        "description": "What anonymous visitors may see about a published org.\n\nA deliberate allowlist, kept separate from ``OrganizationResponse`` so a\nfield added to the authed model never becomes public by accident. Nothing\nabout people (owner, members' emails) \u2014 only aggregate counts. Widening\nthis set is a privacy decision; ``test_public_org_response_allowlist``\npins it so the change has to be made on purpose."
       },
       "PullRequestResponse": {
         "properties": {

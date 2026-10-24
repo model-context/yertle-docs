@@ -118,6 +118,7 @@
       {
         "group": "Public API",
         "pages": [
+          "api-reference/public/get-public-org",
           "api-reference/public/get-public-org-graph",
           "api-reference/public/list-public-org-nodes",
           "api-reference/public/get-public-tree-document",
