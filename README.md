@@ -38,7 +38,7 @@ The `openapi.json` file is generated from the Yertle backend. To regenerate it:
 
 ```bash
 cd ../yertle/backend
-pipenv run python scripts/export_openapi.py --output ../../yertle-docs/openapi.json
+uv run python scripts/export_openapi.py --output ../../yertle-docs/openapi.json
 ```
 
 Then commit and push the updated spec. Mintlify will rebuild the API reference automatically.
