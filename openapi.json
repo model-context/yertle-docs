@@ -1536,6 +1536,88 @@
         }
       }
     },
+    "/orgs/{org_id}/nodes/{node_id}/tree/{branch}/canvas/push": {
+      "post": {
+        "tags": [
+          "nodes"
+        ],
+        "summary": "Push Canvas",
+        "description": "Save one canvas level in one transaction: all of it, or none of it.\n\nCreates `new_nodes`, pushes each changed child in `children`, then pushes\nthe canvas node (`parent`), whose state may name new nodes by `temp_id`.\nEach document is pushed exactly as by PUT .../push. `children` may name any\nnode in the org, as PUT .../push may; it needn't be on this canvas.\n\nEvery `expected_head_commit` is checked before anything is written. If any\nis out of date the response is 409 and `conflicts` lists each such node;\nnothing is saved, so the client can reload and retry without duplicating\nthe new nodes.",
+        "operationId": "push_canvas_orgs__org_id__nodes__node_id__tree__branch__canvas_push_post",
+        "parameters": [
+          {
+            "name": "org_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Org Id"
+            }
+          },
+          {
+            "name": "node_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Node Id"
+            }
+          },
+          {
+            "name": "branch",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Branch"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CanvasPushRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CanvasPushResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CanvasPushConflictResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/orgs/{org_id}/nodes/{node_id}/tree/{branch}/head": {
       "get": {
         "tags": [
@@ -4124,6 +4206,305 @@
         ],
         "title": "BranchResponse",
         "description": "Response model for branch data."
+      },
+      "CanvasPushChild": {
+        "properties": {
+          "node_id": {
+            "type": "string",
+            "title": "Node Id",
+            "description": "The child's node ID"
+          },
+          "branch": {
+            "type": "string",
+            "title": "Branch",
+            "description": "Branch to push the child to",
+            "default": "main"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "Commit message for this child"
+          },
+          "state": {
+            "$ref": "#/components/schemas/NodeState",
+            "description": "Complete desired state"
+          },
+          "expected_head_commit": {
+            "type": "string",
+            "title": "Expected Head Commit",
+            "description": "The child's branch head this document was read at"
+          }
+        },
+        "type": "object",
+        "required": [
+          "node_id",
+          "message",
+          "state",
+          "expected_head_commit"
+        ],
+        "title": "CanvasPushChild",
+        "description": "A changed existing child in a canvas push."
+      },
+      "CanvasPushConflict": {
+        "properties": {
+          "node_id": {
+            "type": "string",
+            "title": "Node Id"
+          },
+          "branch": {
+            "type": "string",
+            "title": "Branch"
+          },
+          "expected_head_commit": {
+            "type": "string",
+            "title": "Expected Head Commit"
+          },
+          "current_head_commit": {
+            "type": "string",
+            "title": "Current Head Commit"
+          }
+        },
+        "type": "object",
+        "required": [
+          "node_id",
+          "branch",
+          "expected_head_commit",
+          "current_head_commit"
+        ],
+        "title": "CanvasPushConflict",
+        "description": "One node whose branch moved since the client read it."
+      },
+      "CanvasPushConflictResponse": {
+        "properties": {
+          "detail": {
+            "type": "string",
+            "title": "Detail"
+          },
+          "conflicts": {
+            "items": {
+              "$ref": "#/components/schemas/CanvasPushConflict"
+            },
+            "type": "array",
+            "title": "Conflicts",
+            "description": "Every node found out of date before writing. Empty when the conflict was a concurrent write detected during the push."
+          }
+        },
+        "type": "object",
+        "required": [
+          "detail"
+        ],
+        "title": "CanvasPushConflictResponse",
+        "description": "409 body of POST .../canvas/push. Nothing was written."
+      },
+      "CanvasPushNewNode": {
+        "properties": {
+          "temp_id": {
+            "type": "string",
+            "pattern": "^temp-",
+            "title": "Temp Id",
+            "description": "Client-side ID the parent's state uses for this node"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title",
+            "description": "Node title"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "description": "Node description",
+            "default": ""
+          },
+          "tags": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "CanvasPushNewNodeTags",
+            "description": "Node tags"
+          },
+          "directories": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Directories",
+            "description": "Directory paths"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message",
+            "description": "Commit message (defaults to 'Initial commit')"
+          }
+        },
+        "type": "object",
+        "required": [
+          "temp_id",
+          "title"
+        ],
+        "title": "CanvasPushNewNode",
+        "description": "A node to create and attach to the canvas in a canvas push."
+      },
+      "CanvasPushNodeResult": {
+        "properties": {
+          "node_id": {
+            "type": "string",
+            "title": "Node Id",
+            "description": "Node ID (real, for created nodes)"
+          },
+          "branch": {
+            "type": "string",
+            "title": "Branch",
+            "description": "Branch that was written"
+          },
+          "commit_id": {
+            "type": "string",
+            "title": "Commit Id",
+            "description": "The branch head after the push"
+          },
+          "previous_commit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Previous Commit",
+            "description": "The branch head before the push (None for created nodes)"
+          },
+          "created": {
+            "type": "boolean",
+            "title": "Created",
+            "description": "True for a node created by this push",
+            "default": false
+          },
+          "unchanged": {
+            "type": "boolean",
+            "title": "Unchanged",
+            "description": "True when the pushed state matched the head: no commit",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "node_id",
+          "branch",
+          "commit_id"
+        ],
+        "title": "CanvasPushNodeResult",
+        "description": "What a canvas push did to one node."
+      },
+      "CanvasPushParent": {
+        "properties": {
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "Commit message for the canvas node"
+          },
+          "state": {
+            "$ref": "#/components/schemas/NodeState",
+            "description": "Complete desired state, as for PUT .../push. `visual_properties` and `connections` may name a `new_nodes` entry by its `temp_id`."
+          },
+          "expected_head_commit": {
+            "type": "string",
+            "title": "Expected Head Commit",
+            "description": "The branch head this document was read at"
+          }
+        },
+        "type": "object",
+        "required": [
+          "message",
+          "state",
+          "expected_head_commit"
+        ],
+        "title": "CanvasPushParent",
+        "description": "The canvas node's own document in a canvas push."
+      },
+      "CanvasPushRequest": {
+        "properties": {
+          "parent": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CanvasPushParent"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The canvas node's document. Required when `new_nodes` is not empty; omit it when only children changed."
+          },
+          "children": {
+            "items": {
+              "$ref": "#/components/schemas/CanvasPushChild"
+            },
+            "type": "array",
+            "title": "Children",
+            "description": "Changed existing children"
+          },
+          "new_nodes": {
+            "items": {
+              "$ref": "#/components/schemas/CanvasPushNewNode"
+            },
+            "type": "array",
+            "title": "New Nodes",
+            "description": "Nodes to create; each must be placed on the parent's canvas"
+          }
+        },
+        "type": "object",
+        "title": "CanvasPushRequest",
+        "description": "Save one canvas level in one transaction: create new nodes, push\nchanged children, then push the canvas node. All or nothing."
+      },
+      "CanvasPushResponse": {
+        "properties": {
+          "node_id_mappings": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "CanvasPushNodeIdMappings",
+            "description": "`temp_id` of each created node to its real node ID"
+          },
+          "connection_id_mappings": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "CanvasPushConnectionIdMappings",
+            "description": "Temp connection IDs in the parent's state to real UUIDs"
+          },
+          "nodes": {
+            "items": {
+              "$ref": "#/components/schemas/CanvasPushNodeResult"
+            },
+            "type": "array",
+            "title": "Nodes",
+            "description": "One entry per node written: created nodes, children, then the parent"
+          }
+        },
+        "type": "object",
+        "title": "CanvasPushResponse",
+        "description": "Result of POST .../canvas/push. Everything in it was committed together."
       },
       "CommitDetailsResponse": {
         "properties": {
