@@ -2590,7 +2590,7 @@
           "branches"
         ],
         "summary": "Delete Branch",
-        "description": "Delete a branch from a node.\n\nSafe by default: the branch must be merged into `main` (or have an open\nPR that was merged) before deletion is allowed. Pass `force=true` to\ndelete an unmerged branch, which discards any commits unique to it.\n\nThe `main` branch cannot be deleted.\n\nRequires **editor** or **owner** role on the organization \u2014 viewers\ncannot delete branches.",
+        "description": "Delete a branch from a node.\n\nA branch with open pull requests is refused with a 400 unless\n`force=true` is passed. That is the only thing `force` overrides.\n\nThere is no merged-into-main check: a branch with unmerged commits and no\nopen pull request is deleted without `force`, and any commits unique to\nit become unreachable.\n\nThe `main` branch cannot be deleted.\n\nRequires **editor** or **owner** role on the organization \u2014 viewers\ncannot delete branches.",
         "operationId": "delete_branch_orgs__org_id__nodes__node_id__branches__branch_name__delete",
         "parameters": [
           {
@@ -5936,12 +5936,12 @@
           "merged": {
             "type": "boolean",
             "title": "Merged",
-            "description": "Whether merge was successful"
+            "description": "Always true: a 200 means the merge succeeded, and every failure is a non-2xx response"
           },
           "merge_commit": {
             "type": "string",
             "title": "Merge Commit",
-            "description": "Merge commit ID"
+            "description": "Commit the target branch was advanced to (fast-forward; no merge commit is created)"
           }
         },
         "type": "object",
