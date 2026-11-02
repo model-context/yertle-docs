@@ -12,7 +12,7 @@ audit: ## Compare openapi.json vs docs.json — show exposed / hidden / broken e
 	@python3 scripts/audit_docs.py
 
 openapi: ## Regenerate openapi.json from the backend FastAPI app
-	cd $(BACKEND) && pipenv run python3 scripts/export_openapi.py --output $(CURDIR)/openapi.json
+	cd $(BACKEND) && uv run python3 scripts/export_openapi.py --output $(CURDIR)/openapi.json
 
 install: ## Install the Mintlify CLI globally (one-time setup)
 	npm i -g mintlify
