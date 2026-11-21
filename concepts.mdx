@@ -3,7 +3,7 @@ title: Core Concepts
 description: "Understand the Git-like model behind Yertle."
 ---
 
-Yertle's API is built on a **Git-like content addressing model**. Once you understand the core primitives, the entire API surface follows naturally.
+Yertle's API is built on a **Git-like versioning model**: nodes have branches, commits and pull requests, and each commit stores the node's full document. Once you understand the core primitives, the entire API surface follows naturally.
 
 ## The mental model
 
@@ -14,7 +14,7 @@ If you're familiar with Git:
 | Repository | Node |
 | Commit | Commit |
 | Branch | Branch |
-| Tree object | Commit tree |
+| Tree object (a commit's snapshot) | The commit's state: the node's full document |
 | File | Tag, directory, connection, child node, etc. |
 
 Every node has its own commit history and branches. Every change is an immutable commit. Every state in history can be retrieved exactly.
