@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Flow API",
-    "description": "Content-addressing backend with Git-like versioning",
+    "description": "Git-like versioned backend: each commit stores the node's full document",
     "version": "1.0.0"
   },
   "servers": [
@@ -40,11 +40,21 @@
           "health"
         ],
         "summary": "Readiness Check",
-        "description": "Readiness check including database connectivity.",
+        "description": "Readiness check including database connectivity.\n\nReturns 503 when the database is unreachable.",
         "operationId": "readiness_check_health_ready_get",
         "responses": {
           "200": {
             "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadinessCheckResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database unreachable",
             "content": {
               "application/json": {
                 "schema": {
@@ -324,7 +334,7 @@
           "organizations"
         ],
         "summary": "Delete Organization",
-        "description": "Delete an organization and all its data.\n\nOnly organization owners can delete. This permanently removes:\n- All nodes and their commit histories\n- All branches, pull requests, and objects\n- All projection data (tags, connections, visual properties)\n- All organization memberships, invite links, and allowed emails",
+        "description": "Delete an organization and all its data.\n\nOnly organization owners can delete. This permanently removes:\n- All nodes and their commit histories\n- All branches and pull requests\n- All projection data (tags, connections, visual properties)\n- All organization memberships, invite links, and allowed emails",
         "operationId": "delete_organization_orgs__org_id__delete",
         "parameters": [
           {
@@ -1417,7 +1427,7 @@
           "nodes"
         ],
         "summary": "Delete Node",
-        "description": "Soft delete a node.\n\nMarks the node as deleted in the projection layer so it no longer appears\nin search results, node lists, or directory trees. All git history (commits,\nobjects, branches) is preserved. The node remains visible in parent canvases\nthat contain it.",
+        "description": "Soft delete a node.\n\nMarks the node as deleted in the projection layer so it no longer appears\nin search results, node lists, or directory trees. All git history (commits\nand branches) is preserved. The node remains visible in parent canvases\nthat contain it.",
         "operationId": "delete_node_orgs__org_id__nodes__node_id__delete",
         "parameters": [
           {
@@ -5254,7 +5264,7 @@
             "additionalProperties": true,
             "type": "object",
             "title": "Deleted",
-            "description": "Counts of entities removed, keyed by entity type"
+            "description": "What was deleted: the deleted resource's ID and flags describing the deletion, e.g. {org_id, cascade} for an organization or {node_id, soft_deleted} for a node"
           },
           "message": {
             "type": "string",
@@ -5274,8 +5284,7 @@
       "DiffEntityResponse": {
         "properties": {
           "entity_type": {
-            "type": "string",
-            "title": "Entity Type",
+            "$ref": "#/components/schemas/EntityKind",
             "description": "Type of entity"
           },
           "entity_id": {
@@ -5294,42 +5303,6 @@
             ],
             "title": "Entity Key",
             "description": "Entity key"
-          },
-          "object_id": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Object Id",
-            "description": "Object ID"
-          },
-          "old_object_id": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Old Object Id",
-            "description": "Old object ID (for modifications)"
-          },
-          "new_object_id": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "New Object Id",
-            "description": "New object ID (for modifications)"
           }
         },
         "type": "object",
@@ -5430,6 +5403,18 @@
         "type": "object",
         "title": "DirectoryTreeResponse",
         "description": "Response for directory tree endpoints.\n\n`directories` is used by the all-orgs tree variant; `tree` is used by the\nper-org tree variant. Exactly one is populated per endpoint."
+      },
+      "EntityKind": {
+        "type": "string",
+        "enum": [
+          "node",
+          "tag",
+          "directory",
+          "visual_property",
+          "connection"
+        ],
+        "title": "EntityKind",
+        "description": "The kind of an entity in a node's state, as diffs name it."
       },
       "GraphEdge": {
         "properties": {
@@ -7105,12 +7090,12 @@
           "objects_created": {
             "type": "integer",
             "title": "Objects Created",
-            "description": "Number of new objects created"
+            "description": "Number of entities (the node, tags, directories, children and connections) added or modified compared with the branch head. 0 when `unchanged`."
           },
           "objects_reused": {
             "type": "integer",
             "title": "Objects Reused",
-            "description": "Number of existing objects reused"
+            "description": "Number of entities unchanged from the branch head. When `unchanged`, every entity. Removed entities count in neither field."
           },
           "previous_commit": {
             "anyOf": [
