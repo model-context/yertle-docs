@@ -77,7 +77,6 @@ subcommands rather than running a default action.
 ```bash
 yertle orgs list              # organizations you belong to
 yertle orgs show <org-id>     # one organization in detail
-yertle orgs use <org-id>      # set a default org — or `all` to undo
 ```
 
 ### Nodes
@@ -88,6 +87,10 @@ yertle nodes tree             # the containment hierarchy
 yertle nodes show <node-id>   # tags, parents, children, connections
 yertle nodes search "<query>" # rank nodes by meaning, not by name
 ```
+
+`nodes show` needs no `--org`: it asks the backend which organization the node
+is in. That works for any node you can read, including one in a public
+organization you are not a member of.
 
 `nodes search` is the fastest way from a description to a node. Add
 `--expand standard` to pull in the surrounding nodes and connections in the
@@ -115,31 +118,48 @@ resolved from, without making a request:
 ```
   API URL  https://api.yertle.com                (from $YERTLE_API_URL)
   Token    yrt_a1b2…f9e0                         (from ~/.yertle/config.json)
-  Org      2c440b7a-d5bd-4f0d-9264-8da3195497af  (from ~/.yertle/config.json)
+  Org      2c440b7a                              (from $YERTLE_ORG)
 ```
 
 It exits non-zero when no token resolves, so it works as a precondition check
 in scripts.
 
+## Short IDs
+
+Anywhere the CLI takes an organization or node ID, the first 8 or more
+characters of it will do, the way git takes a short commit SHA:
+
+```bash
+yertle nodes show 09a802a9
+yertle nodes tree --org 2c440b7a
+```
+
+Tables print IDs that short, so you can paste one straight back into the next
+command. `--format json` keeps full IDs. If a short ID matches more than one
+node, the CLI says so and lists the matches; add characters until it is
+unique.
+
 ## Choosing an organization
 
-Most commands act on one organization, resolved in this order:
+Commands that start from an organization — `nodes list`, `nodes tree`,
+`nodes search` and `nodes create` — resolve it in this order:
 
 | Priority | Source |
 |---|---|
 | 1 | `--org <id>` flag |
 | 2 | `$YERTLE_ORG` |
-| 3 | `yertle orgs use <id>` (saved in `~/.yertle/config.json`) |
-| 4 | Every organization you belong to |
+| 3 | `nodes list` and `nodes tree`: every organization you belong to. `nodes search` and `nodes create`: your organization, if you belong to just one; otherwise they ask you to pick |
+
+To work in one organization for a while, set it for the shell:
 
 ```bash
-yertle orgs use 2c440b7a-d5bd-4f0d-9264-8da3195497af
+export YERTLE_ORG=2c440b7a
 yertle nodes list    # no --org needed from here on
 ```
 
-Commands that can span organizations — `nodes list` and `nodes tree` — do so by
-default. Commands that cannot address more than one — `nodes show` and
-`nodes search` — ask you to pick one.
+Commands that take a node ID — `nodes show`, `nodes delete`, and the
+`branches` and `prs` commands — look the organization up from the node. If
+you pass `--org` or set `$YERTLE_ORG` anyway, it has to match.
 
 ## Output formats
 
@@ -170,6 +190,13 @@ the right way to point at a different backend for a single command without
 disturbing saved credentials. `yertle login` writes the config file with
 owner-only permissions (`0600`) and merges into any existing contents rather
 than replacing them.
+
+<Note>
+  **Upgrading to 0.9.0:** `yertle orgs use` has been removed. Pass `--org`, or
+  `export YERTLE_ORG=<id>`. If your config file still holds a default
+  organization from `orgs use`, the CLI removes it the first time a command
+  would have used it, and says so.
+</Note>
 
 <Note>
   **Upgrading from 0.2.0 or earlier:** `yertle orgs` is now `yertle orgs list`.

@@ -35,7 +35,8 @@ A **node** is the central object in Yertle. It represents anything you want to m
 
 Each node has:
 
-- **Identity** — a stable UUID and a public ID (used in URLs)
+- **Identity** — a stable UUID (its first 8 characters are usually enough, and
+  are what URLs and the CLI show) and a human-readable public ID
 - **Content** — title, description, tags, directories
 - **Children** — nodes contained inside this node
 - **Connections** — directed edges between child nodes

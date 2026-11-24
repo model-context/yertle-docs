@@ -37,7 +37,9 @@ Endpoints are organized by resource:
 
 ## Conventions
 
-- All IDs are UUIDs
+- All IDs are UUIDs. In a path, an organization or node ID can be shortened to
+  its first 8 or more hex characters, as long as that prefix is unique; an
+  ambiguous one returns `409`
 - All timestamps are ISO 8601 in UTC
 - Pagination uses `limit` and `offset` query parameters
 - Errors follow [RFC 7807 Problem Details](https://datatracker.ietf.org/doc/html/rfc7807) format
