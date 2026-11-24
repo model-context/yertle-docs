@@ -1141,50 +1141,6 @@
         }
       }
     },
-    "/orgs/{org_id}/nodes/directories/tree": {
-      "get": {
-        "tags": [
-          "directories"
-        ],
-        "summary": "Get Directory Tree",
-        "description": "Get hierarchical directory tree structure.",
-        "operationId": "get_directory_tree_orgs__org_id__nodes_directories_tree_get",
-        "parameters": [
-          {
-            "name": "org_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid",
-              "title": "Org Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DirectoryTreeResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/orgs/all/hierarchy": {
       "get": {
         "tags": [
@@ -5382,27 +5338,11 @@
             ],
             "title": "Directories",
             "description": "Flat directory entries across orgs"
-          },
-          "tree": {
-            "anyOf": [
-              {
-                "items": {
-                  "additionalProperties": true,
-                  "type": "object"
-                },
-                "type": "array"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Tree",
-            "description": "Hierarchical directory tree for a single org"
           }
         },
         "type": "object",
         "title": "DirectoryTreeResponse",
-        "description": "Response for directory tree endpoints.\n\n`directories` is used by the all-orgs tree variant; `tree` is used by the\nper-org tree variant. Exactly one is populated per endpoint."
+        "description": "Response for the all-orgs directory tree endpoint."
       },
       "EntityKind": {
         "type": "string",

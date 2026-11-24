@@ -103,7 +103,6 @@
           "api-reference/directories/get-directory-contents-across-orgs",
           "api-reference/directories/list-all-directories",
           "api-reference/directories/get-org-directory-contents",
-          "api-reference/directories/get-directory-tree",
           "api-reference/directories/get-all-orgs-hierarchy",
           "api-reference/directories/get-org-hierarchy"
         ]
